@@ -2279,6 +2279,33 @@ const char *cmake::GetProperty(const std::string& prop,
     return FOR_EACH_CXX_FEATURE(STRING_LIST_ELEMENT) + 1;
 #undef STRING_LIST_ELEMENT
     }
+#define PP_FEATURE_NAME(F) \
+  if (prop == "CMAKE_PP_NAME_" #F) \
+    { \
+    static std::string val = ("COMPILER_" + cmSystemTools::UpperCase(#F)); \
+    return val.c_str(); \
+    }
+  FOR_EACH_CXX_FEATURE(PP_FEATURE_NAME)
+#undef PP_FEATURE_NAME
+
+#define FOR_EACH_CXX_DECL_FEATURE(F) \
+  F(final) \
+  F(override) \
+  F(constexpr)
+
+#define PP_DECL_NAME(F) \
+  if (prop == "CMAKE_PP_DECL_cxx_" #F) \
+    { \
+    static std::string val = ("DECL_CXX_" + cmSystemTools::UpperCase(#F)); \
+    return val.c_str(); \
+    } \
+  if (prop == "CMAKE_SYMBOL_DEFINE_cxx_" #F) \
+    { \
+    return #F; \
+    }
+  FOR_EACH_CXX_DECL_FEATURE(PP_DECL_NAME)
+#undef PP_DECL_NAME
+
   return this->Properties.GetPropertyValue(prop, scope, chain);
 }
 

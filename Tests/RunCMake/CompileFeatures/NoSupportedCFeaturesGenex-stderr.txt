@@ -1,6 +1,6 @@
 CMake Error in CMakeLists.txt:
-  No known features for CXX compiler
+  No known features for C compiler
 
-  "[^"]*"
+  "GNU"
 
   version *[.0-9]+\.

@@ -10,11 +10,20 @@ run_cmake(NotAFeature_OriginDebug_target_compile_features)
 
 run_cmake(generate_feature_list)
 file(READ
-  "${RunCMake_BINARY_DIR}/generate_feature_list-build/features.txt"
-  FEATURES
+  "${RunCMake_BINARY_DIR}/generate_feature_list-build/c_features.txt"
+  C_FEATURES
+)
+file(READ
+  "${RunCMake_BINARY_DIR}/generate_feature_list-build/cxx_features.txt"
+  CXX_FEATURES
 )
 
-if (NOT FEATURES)
+if (NOT C_FEATURES)
+  run_cmake(NoSupportedCFeatures)
+  run_cmake(NoSupportedCFeaturesGenex)
+endif()
+
+if (NOT CXX_FEATURES)
   run_cmake(NoSupportedCxxFeatures)
   run_cmake(NoSupportedCxxFeaturesGenex)
 endif()

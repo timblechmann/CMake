@@ -1,5 +1,9 @@
 
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/features.txt"
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/c_features.txt"
+  "${CMAKE_C_COMPILE_FEATURES}"
+)
+
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cxx_features.txt"
   "${CMAKE_CXX_COMPILE_FEATURES}"
 )
 

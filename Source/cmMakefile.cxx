@@ -4496,12 +4496,22 @@ void cmMakefile::RecordPolicies(cmPolicies::PolicyMap& pm)
 }
 
 #define FEATURE_STRING(F) , #F
+static const char * const C_FEATURES[] = {
+  0
+  FOR_EACH_C_FEATURE(FEATURE_STRING)
+};
 
 static const char * const CXX_FEATURES[] = {
   0
   FOR_EACH_CXX_FEATURE(FEATURE_STRING)
 };
+#undef FEATURE_STRING
 
+static const char * const C_STANDARDS[] = {
+    "90"
+  , "99"
+  , "11"
+};
 static const char * const CXX_STANDARDS[] = {
     "98"
   , "11"
@@ -4517,10 +4527,13 @@ AddRequiredTargetFeature(cmTarget *target, const std::string& feature,
     target->AppendProperty("COMPILE_FEATURES", feature.c_str());
     return true;
     }
+  bool isCFeature = std::find_if(cmArrayBegin(C_FEATURES) + 1,
+              cmArrayEnd(C_FEATURES), cmStrCmp(feature))
+              != cmArrayEnd(C_FEATURES);
   bool isCxxFeature = std::find_if(cmArrayBegin(CXX_FEATURES) + 1,
               cmArrayEnd(CXX_FEATURES), cmStrCmp(feature))
               != cmArrayEnd(CXX_FEATURES);
-  if (!isCxxFeature)
+  if (!isCFeature && !isCxxFeature)
     {
     cmOStringStream e;
     if (error)
@@ -4544,7 +4557,7 @@ AddRequiredTargetFeature(cmTarget *target, const std::string& feature,
     return false;
     }
 
-  std::string lang = "CXX";
+  std::string lang = isCFeature ? "C" : "CXX";
 
   const char* featuresKnown =
     this->GetDefinition("CMAKE_" + lang + "_COMPILE_FEATURES");
@@ -4560,7 +4573,7 @@ AddRequiredTargetFeature(cmTarget *target, const std::string& feature,
       {
       e << "No";
       }
-    e << " known features for compiler\n\""
+    e << " known features for " << lang << " compiler\n\""
       << this->GetDefinition("CMAKE_" + lang + "_COMPILER_ID")
       << "\"\nversion "
       << this->GetDefinition("CMAKE_" + lang + "_COMPILER_VERSION") << ".";
@@ -4593,8 +4606,33 @@ AddRequiredTargetFeature(cmTarget *target, const std::string& feature,
 
   target->AppendProperty("COMPILE_FEATURES", feature.c_str());
 
+  bool needC90 = false;
+  bool needC99 = false;
+  bool needC11 = false;
   bool needCxx98 = false;
   bool needCxx11 = false;
+
+  if (const char *propC90 =
+          this->GetDefinition("CMAKE_C90_COMPILE_FEATURES"))
+    {
+    std::vector<std::string> props;
+    cmSystemTools::ExpandListArgument(propC90, props);
+    needC90 = std::find(props.begin(), props.end(), feature) != props.end();
+    }
+  if (const char *propC99 =
+          this->GetDefinition("CMAKE_C99_COMPILE_FEATURES"))
+    {
+    std::vector<std::string> props;
+    cmSystemTools::ExpandListArgument(propC99, props);
+    needC99 = std::find(props.begin(), props.end(), feature) != props.end();
+    }
+  if (const char *propC11 =
+          this->GetDefinition("CMAKE_C11_COMPILE_FEATURES"))
+    {
+    std::vector<std::string> props;
+    cmSystemTools::ExpandListArgument(propC11, props);
+    needC11 = std::find(props.begin(), props.end(), feature) != props.end();
+    }
 
   if (const char *propCxx98 =
           this->GetDefinition("CMAKE_CXX98_COMPILE_FEATURES"))
@@ -4610,6 +4648,25 @@ AddRequiredTargetFeature(cmTarget *target, const std::string& feature,
     cmSystemTools::ExpandListArgument(propCxx11, props);
     needCxx11 = std::find(props.begin(), props.end(), feature) != props.end();
     }
+
+  const char *existingCStandard = target->GetProperty("C_STANDARD");
+  if (existingCStandard)
+    {
+    if (std::find_if(cmArrayBegin(C_STANDARDS), cmArrayEnd(C_STANDARDS),
+                  cmStrCmp(existingCStandard)) == cmArrayEnd(C_STANDARDS))
+      {
+      cmOStringStream e;
+      e << "The C_STANDARD property on target \"" << target->GetName()
+        << "\" contained an invalid value: \"" << existingCStandard << "\".";
+      this->IssueMessage(cmake::FATAL_ERROR, e.str().c_str());
+      return false;
+      }
+    }
+  const char * const *existingCIt = existingCStandard
+                                    ? std::find_if(cmArrayBegin(C_STANDARDS),
+                                      cmArrayEnd(C_STANDARDS),
+                                      cmStrCmp(existingCStandard))
+                                    : cmArrayEnd(C_STANDARDS);
 
   const char *existingCxxStandard = target->GetProperty("CXX_STANDARD");
   if (existingCxxStandard)
@@ -4630,8 +4687,34 @@ AddRequiredTargetFeature(cmTarget *target, const std::string& feature,
                                       cmStrCmp(existingCxxStandard))
                                     : cmArrayEnd(CXX_STANDARDS);
 
+  bool setC90 = needC90 && !existingCStandard;
+  bool setC99 = needC99 && !existingCStandard;
+  bool setC11 = needC11 && !existingCStandard;
+
   bool setCxx98 = needCxx98 && !existingCxxStandard;
   bool setCxx11 = needCxx11 && !existingCxxStandard;
+
+  if (needC11 && existingCStandard && existingCIt <
+                                    std::find_if(cmArrayBegin(C_STANDARDS),
+                                      cmArrayEnd(C_STANDARDS),
+                                      cmStrCmp("11")))
+    {
+    setC11 = true;
+    }
+  else if(needC99 && existingCStandard && existingCIt <
+                                    std::find_if(cmArrayBegin(C_STANDARDS),
+                                      cmArrayEnd(C_STANDARDS),
+                                      cmStrCmp("99")))
+    {
+    setC99 = true;
+    }
+  else if(needC90 && existingCStandard && existingCIt <
+                                    std::find_if(cmArrayBegin(C_STANDARDS),
+                                      cmArrayEnd(C_STANDARDS),
+                                      cmStrCmp("90")))
+    {
+    setC90 = true;
+    }
 
   if (needCxx11 && existingCxxStandard && existingCxxIt <
                                     std::find_if(cmArrayBegin(CXX_STANDARDS),
@@ -4646,6 +4729,19 @@ AddRequiredTargetFeature(cmTarget *target, const std::string& feature,
                                       cmStrCmp("98")))
     {
     setCxx98 = true;
+    }
+
+  if (setC11)
+    {
+    target->SetProperty("C_STANDARD", "11");
+    }
+  else if (setC99)
+    {
+    target->SetProperty("C_STANDARD", "99");
+    }
+  else if (setC90)
+    {
+    target->SetProperty("C_STANDARD", "90");
     }
 
   if (setCxx11)

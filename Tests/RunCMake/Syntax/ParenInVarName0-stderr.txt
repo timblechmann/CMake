@@ -7,6 +7,6 @@ CMake Error at ParenInVarName0.cmake:4 \(message\):
 
     -->\${e\(x\)}<--
 
-  Invalid character \('\('\) in a variable name:
+  Invalid character \('\('\) in a variable name: 'e'
 Call Stack \(most recent call first\):
   CMakeLists.txt:3 \(include\)

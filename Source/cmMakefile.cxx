@@ -316,6 +316,13 @@ void cmMakefile::IssueMessage(cmake::MessageType t,
       this->CallStack.back().Status->SetNestedError(true);
       }
     this->GetBacktrace(backtrace);
+
+    for (cmListFileBacktrace::iterator i = backtrace.begin();
+         i != backtrace.end(); ++i)
+      {
+      i->FilePath = this->LocalGenerator->Convert(i->FilePath,
+                                                  cmLocalGenerator::HOME);
+      }
     }
   else
     {
@@ -355,10 +362,7 @@ bool cmMakefile::GetBacktrace(cmListFileBacktrace& backtrace) const
   for(CallStackType::const_reverse_iterator i = this->CallStack.rbegin();
       i != this->CallStack.rend(); ++i)
     {
-    cmListFileContext lfc = *(*i).Context;
-    lfc.FilePath = this->LocalGenerator->Convert(lfc.FilePath,
-                                                 cmLocalGenerator::HOME);
-    backtrace.push_back(lfc);
+    backtrace.push_back(*i->Context);
     }
   return true;
 }

@@ -46,6 +46,7 @@ bool cmExportBuildFileGenerator::GenerateMainFile(std::ostream& os)
       {
       cmOStringStream e;
       e << "given target \"" << te->GetName() << "\" more than once.";
+      this->Backtrace.MakeRelative();
       this->Makefile->GetCMakeInstance()
           ->IssueMessage(cmake::FATAL_ERROR, e.str(), this->Backtrace);
       return false;
@@ -317,6 +318,7 @@ cmExportBuildFileGenerator
   e << "If the required target is not easy to reference in this call, "
     << "consider using the APPEND option with multiple separate calls.";
 
+  this->Backtrace.MakeRelative();
   this->Makefile->GetCMakeInstance()
       ->IssueMessage(cmake::FATAL_ERROR, e.str(), this->Backtrace);
 }

@@ -91,9 +91,11 @@ void cmGeneratorExpressionDAGChecker::ReportError(
       << "  " << expr << "\n"
       << "Self reference on target \""
       << context->HeadTarget->GetName() << "\".\n";
+    cmListFileBacktrace backtrace = parent->Backtrace;
+    backtrace.MakeRelative();
     context->Makefile->GetCMakeInstance()
       ->IssueMessage(cmake::FATAL_ERROR, e.str(),
-                      parent->Backtrace);
+                     backtrace);
     return;
     }
 
@@ -102,6 +104,7 @@ void cmGeneratorExpressionDAGChecker::ReportError(
   e << "Error evaluating generator expression:\n"
     << "  " << expr << "\n"
     << "Dependency loop found.";
+  context->Backtrace.MakeRelative();
   context->Makefile->GetCMakeInstance()
     ->IssueMessage(cmake::FATAL_ERROR, e.str(),
                     context->Backtrace);
@@ -115,9 +118,11 @@ void cmGeneratorExpressionDAGChecker::ReportError(
       << "  "
       << (parent->Content ? parent->Content->GetOriginalExpression() : expr)
       << "\n";
+    cmListFileBacktrace backtrace = parent->Backtrace;
+    backtrace.MakeRelative();
     context->Makefile->GetCMakeInstance()
       ->IssueMessage(cmake::FATAL_ERROR, e.str(),
-                      parent->Backtrace);
+                     backtrace);
     parent = parent->Parent;
     ++loopStep;
     }

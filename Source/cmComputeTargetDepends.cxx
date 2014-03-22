@@ -386,15 +386,10 @@ void cmComputeTargetDepends::AddTargetDepend(int depender_index,
       e << "The dependency target \"" <<  dependee_name
         << "\" of target \"" << depender->GetName() << "\" does not exist.";
 
-      cmListFileBacktrace nullBacktrace;
-      cmListFileBacktrace const* backtrace =
+      cmListFileBacktrace backtrace =
         depender->GetUtilityBacktrace(dependee_name);
-      if(!backtrace)
-        {
-        backtrace = &nullBacktrace;
-        }
 
-      cm->IssueMessage(messageType, e.str(), *backtrace);
+      cm->IssueMessage(messageType, e.str(), backtrace);
       }
     }
 

@@ -11,21 +11,32 @@ if (NOT CMAKE_CXX_COMPILE_FEATURES)
   return()
 endif()
 
-macro(run_test feature)
+macro(run_cxx_test feature)
   if (";${CMAKE_CXX_COMPILE_FEATURES};" MATCHES ${feature})
     add_library(test_${feature} OBJECT ${feature}.cpp)
     set_property(TARGET test_${feature}
       PROPERTY COMPILE_FEATURES "${feature}"
     )
   else()
-    message("Not supported: ${feature}")
+    list(APPEND cxx_non_features ${feature})
   endif()
 endmacro()
 
-get_property(features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-foreach(feature ${features})
-  run_test(${feature})
+get_property(cxx_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
+foreach(feature ${cxx_features})
+  run_cxx_test(${feature})
 endforeach()
+
+if (CMAKE_CXX_COMPILE_FEATURES)
+  include(CheckCXXSourceCompiles)
+  foreach(feature ${cxx_non_features})
+    check_cxx_source_compiles("#include \"${CMAKE_CURRENT_SOURCE_DIR}/${feature}.cpp\"\nint main() { return 0; }\n" ${feature}_works)
+    if (${feature}_works)
+      message(SEND_ERROR
+        "Feature ${feature} expected not to work for ${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}.  Update the supported features or blacklist it.")
+    endif()
+  endforeach()
+endif()
 
 add_executable(CompileFeatures main.cpp)
 set_property(TARGET CompileFeatures

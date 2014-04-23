@@ -232,4 +232,3 @@ All Modules
    /module/UsewxWidgets
    /module/Use_wxWindows
    /module/WriteBasicConfigVersionFile
-   /module/WriteCompilerDetectionHeader

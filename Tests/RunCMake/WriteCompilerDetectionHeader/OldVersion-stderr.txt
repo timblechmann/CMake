@@ -1,4 +1,4 @@
-CMake Error at /home/stephen/dev/src/cmake/Modules/WriteCompilerDetectionHeader.cmake:191 \(message\):
+CMake Error at .*Modules/WriteCompilerDetectionHeader.cmake:[0-9]+ \(message\):
   VERSION parameter too low.
 Call Stack \(most recent call first\):
   OldVersion.cmake:4 \(write_compiler_detection_header\)

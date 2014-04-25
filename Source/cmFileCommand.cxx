@@ -3265,7 +3265,8 @@ cmFileCommand::HandleUploadCommand(std::vector<std::string> const& args)
 void cmFileCommand::AddEvaluationFile(const std::string &inputName,
                                       const std::string &outputExpr,
                                       const std::string &condition,
-                                      bool inputIsContent
+                                      bool inputIsContent,
+                                      bool writeAlways
                                      )
 {
   cmListFileBacktrace lfbt;
@@ -3284,7 +3285,8 @@ void cmFileCommand::AddEvaluationFile(const std::string &inputName,
                                                           outputCge,
                                                           this->Makefile,
                                                           conditionCge,
-                                                          inputIsContent);
+                                                          inputIsContent,
+                                                          writeAlways);
 }
 
 //----------------------------------------------------------------------------
@@ -3301,6 +3303,23 @@ bool cmFileCommand::HandleGenerateCommand(
     this->SetError("Incorrect arguments to GENERATE subcommand.");
     return false;
     }
+  bool writeAlways = false;
+
+  switch (this->Makefile->GetPolicyStatus(cmPolicies::CMP0053))
+    {
+    case cmPolicies::WARN:
+      this->Makefile->IssueMessage(cmake::AUTHOR_WARNING,
+            this->Makefile->GetPolicies()->
+              GetPolicyWarning(cmPolicies::CMP0053));
+    case cmPolicies::OLD:
+      writeAlways = true;
+      break;
+    case cmPolicies::NEW:
+    case cmPolicies::REQUIRED_ALWAYS:
+    case cmPolicies::REQUIRED_IF_USED:
+      break;
+    }
+
   std::string condition;
   if (args.size() > 5)
     {
@@ -3331,7 +3350,8 @@ bool cmFileCommand::HandleGenerateCommand(
     }
   std::string input = args[4];
 
-  this->AddEvaluationFile(input, output, condition, inputIsContent);
+  this->AddEvaluationFile(input, output, condition,
+                          inputIsContent, writeAlways);
   return true;
 }
 

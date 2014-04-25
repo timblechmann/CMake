@@ -1,0 +1,7 @@
+CMake Warning \(dev\) at CMP0053-WARN.cmake:2 \(file\):
+  Policy CMP0053 is not set: Always write the output of file\(GENERATE\).  Run
+  "cmake --help-policy CMP0053" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+Call Stack \(most recent call first\):
+  CMakeLists.txt:3 \(include\)
+This warning is for project developers.  Use -Wno-dev to suppress it.

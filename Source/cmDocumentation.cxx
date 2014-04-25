@@ -30,6 +30,8 @@ static const char *cmDocumentationStandardOptions[][2] =
    "Print usage information and exit."},
   {"--version,-version,/V [<f>]",
    "Print version number and exit."},
+  {"--help-full [<f>]",
+   "Print all help manuals and exit."},
   {"--help-manual <man> [<f>]",
    "Print one help manual and exit."},
   {"--help-manual-list [<f>]",

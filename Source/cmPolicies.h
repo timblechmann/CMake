@@ -107,6 +107,7 @@ public:
     CMP0051, ///< List TARGET_OBJECTS in SOURCES target property
     CMP0052, ///< Reject source and build dirs in installed
     /// INTERFACE_INCLUDE_DIRECTORIES
+    CMP0053, ///< Always write the output of file(GENERATE).
 
     /** \brief Always the last entry.
      *

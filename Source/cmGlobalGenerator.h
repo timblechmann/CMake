@@ -309,7 +309,8 @@ public:
                   cmsys::auto_ptr<cmCompiledGeneratorExpression> outputName,
                   cmMakefile *makefile,
                   cmsys::auto_ptr<cmCompiledGeneratorExpression> condition,
-                  bool inputIsContent);
+                  bool inputIsContent,
+                  bool writeAlways);
 
   void ProcessEvaluationFiles();
 

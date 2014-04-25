@@ -1,0 +1,17 @@
+CMP0053
+-------
+
+Always write the output of file(GENERATE).
+
+CMake 3.0 and lower always writes the output file specified in a
+:command:`file(GENERATE)` command, even if the content is unchanged.
+
+The OLD behavior for this policy is for the :command:`file(GENERATE)`
+command to always write the to the output file.  The NEW behavior for
+this policy is to write the output file only if the content to be written
+is different.
+
+This policy was introduced in CMake version 3.1.
+CMake version |release| warns when the policy is not set and uses
+``OLD`` behavior.  Use the :command:`cmake_policy` command to set it
+to ``OLD`` or ``NEW`` explicitly.

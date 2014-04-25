@@ -20,6 +20,9 @@ if(UNIX  AND  "${CMAKE_GENERATOR}" MATCHES "Makefile")
 
     # now set up the test:
     if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
+      if (POLICY CMP0053)
+        cmake_policy(SET CMP0053 NEW)
+      endif()
       file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/cmakeExecutable.mk"
         CONTENT "CMAKE = \"$<TARGET_FILE:cmake>\"\n"
       )

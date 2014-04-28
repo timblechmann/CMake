@@ -411,7 +411,7 @@ if(BUILD_TESTING)
   ADD_TEST_MACRO(Module.GenerateExportHeader GenerateExportHeader)
   ADD_TEST_MACRO(Module.FindDependency FindDependency)
 
-  if (CMAKE_CXX_COMPILER_ID STREQUAL GNU AND UNIX AND NOT APPLE)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     ADD_TEST_MACRO(Module.WriteCompilerDetectionHeader WriteCompilerDetectionHeader)
   endif()
   if (APPLE OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")

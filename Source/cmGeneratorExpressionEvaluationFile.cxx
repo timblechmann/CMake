@@ -13,6 +13,7 @@
 #include "cmGeneratorExpressionEvaluationFile.h"
 
 #include "cmMakefile.h"
+#include "cmGeneratedFileStream.h"
 #include <cmsys/FStream.hxx>
 
 #include <assert.h>
@@ -23,14 +24,12 @@ cmGeneratorExpressionEvaluationFile::cmGeneratorExpressionEvaluationFile(
         cmsys::auto_ptr<cmCompiledGeneratorExpression> outputFileExpr,
         cmMakefile *makefile,
         cmsys::auto_ptr<cmCompiledGeneratorExpression> condition,
-        bool inputIsContent,
-        bool writeAlways)
+        bool inputIsContent)
   : Input(input),
     OutputFileExpr(outputFileExpr),
     Makefile(makefile),
     Condition(condition),
-    InputIsContent(inputIsContent),
-    WriteAlways(writeAlways)
+    InputIsContent(inputIsContent)
 {
 }
 
@@ -81,28 +80,9 @@ void cmGeneratorExpressionEvaluationFile::Generate(const std::string& config,
   this->Files.push_back(outputFileName);
   outputFiles[outputFileName] = outputContent;
 
-  std::string outputTempFileName = this->Makefile->GetCurrentOutputDirectory();
-  outputTempFileName += "/CMakeFiles/evaluation_file.tmp";
-
-  cmsys::ofstream fout(outputTempFileName.c_str());
-
-  if(!fout)
-    {
-    cmOStringStream e;
-    e << "Evaluation file \"" << outputFileName << "\" cannot be written to "
-         "temporary location \"" << outputTempFileName << "\".";
-    this->Makefile->IssueMessage(cmake::FATAL_ERROR, e.str());
-    return;
-    }
-
+  cmGeneratedFileStream fout(outputFileName.c_str());
+  fout.SetCopyIfDifferent(true);
   fout << outputContent;
-
-  fout.close();
-
-  cmSystemTools::CopyAFile(outputTempFileName.c_str(),
-                           outputFileName.c_str(), this->WriteAlways);
-
-  cmSystemTools::RemoveFile(outputTempFileName.c_str());
 }
 
 //----------------------------------------------------------------------------

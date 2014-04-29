@@ -25,8 +25,7 @@ public:
         cmsys::auto_ptr<cmCompiledGeneratorExpression> outputFileExpr,
         cmMakefile *makefile,
         cmsys::auto_ptr<cmCompiledGeneratorExpression> condition,
-        bool inputIsContent,
-        bool writeAlways);
+        bool inputIsContent);
 
   void Generate();
 
@@ -44,7 +43,6 @@ private:
   const cmsys::auto_ptr<cmCompiledGeneratorExpression> Condition;
   std::vector<std::string> Files;
   const bool InputIsContent;
-  const bool WriteAlways;
 };
 
 #endif

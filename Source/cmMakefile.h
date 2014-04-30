@@ -1010,7 +1010,12 @@ private:
   friend class cmMakefileCall;
 
   std::vector<cmTarget*> ImportedTargetsOwned;
-  std::map<std::string, cmTarget*> ImportedTargets;
+#if defined(CMAKE_BUILD_WITH_CMAKE)
+  typedef cmsys::hash_map<std::string, cmTarget*> ImportedTargetMap;
+#else
+  typedef std::map<std::string, cmTarget*> ImportedTargetMap;
+#endif
+  ImportedTargetMap ImportedTargets;
 
   // Internal policy stack management.
   void PushPolicy(bool weak = false,

@@ -4134,7 +4134,7 @@ cmTarget* cmMakefile::FindTargetToUse(const std::string& name,
 {
   // Look for an imported target.  These take priority because they
   // are more local in scope and do not have to be globally unique.
-  std::map<std::string, cmTarget*>::const_iterator
+  ImportedTargetMap::const_iterator
     imported = this->ImportedTargets.find(name);
   if(imported != this->ImportedTargets.end())
     {

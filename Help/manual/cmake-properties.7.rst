@@ -108,6 +108,7 @@ Properties on Targets
    /prop_tgt/CONFIG_OUTPUT_NAME
    /prop_tgt/CONFIG_POSTFIX
    /prop_tgt/CXX_STANDARD
+   /prop_tgt/CXX_STANDARD_REQUIRED
    /prop_tgt/CXX_EXTENSIONS
    /prop_tgt/DEBUG_POSTFIX
    /prop_tgt/DEFINE_SYMBOL

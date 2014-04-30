@@ -260,6 +260,7 @@ Variables for Languages
    /variable/CMAKE_CXX_COMPILE_FEATURES
    /variable/CMAKE_CXX_KNOWN_FEATURES
    /variable/CMAKE_CXX_STANDARD
+   /variable/CMAKE_CXX_STANDARD_REQUIRED
    /variable/CMAKE_CXX_EXTENSIONS
    /variable/CMAKE_Fortran_MODDIR_DEFAULT
    /variable/CMAKE_Fortran_MODDIR_FLAG

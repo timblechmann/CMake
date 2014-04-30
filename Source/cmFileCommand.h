@@ -80,8 +80,7 @@ private:
   void AddEvaluationFile(const std::string &inputName,
                          const std::string &outputExpr,
                          const std::string &condition,
-                         bool inputIsContent,
-                         bool writeAlways);
+                         bool inputIsContent);
 };
 
 

@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(WriteCompilerDetectionHeader)
 
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp"
+    "int main(int,char**) { return 0; }\n"
+  )
+  add_executable(WriteCompilerDetectionHeader "${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp")
+  return()
+endif()
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include(WriteCompilerDetectionHeader)

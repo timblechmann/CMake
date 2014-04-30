@@ -33,8 +33,6 @@
 # include <cmsys/hash_map.hxx>
 #endif
 
-#include <deque>
-
 class cmFunctionBlocker;
 class cmCommand;
 class cmInstallGenerator;
@@ -1056,20 +1054,6 @@ private:
                                   long line,
                                   bool removeEmpty,
                                   bool replaceAt) const;
-  typedef enum
-    {
-    NORMAL,
-    ENVIRONMENT,
-    CACHE
-    } VariableDomain;
-  struct VariableLookup
-    {
-    VariableDomain Domain;
-    std::string LookupStart;
-    };
-  typedef std::deque<VariableLookup> VariableStack;
-  mutable VariableStack EVISOpenStack;
-
   // CMP0053 == new
   cmake::MessageType ExpandVariablesInStringNew(
                                   std::string& errorstr,

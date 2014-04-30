@@ -2832,6 +2832,18 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringOld(
   return mtype;
 }
 
+typedef enum
+  {
+  NORMAL,
+  ENVIRONMENT,
+  CACHE
+  } t_domain;
+struct t_lookup
+  {
+  t_domain domain;
+  std::string lookup;
+  };
+
 cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
                                             std::string& errorstr,
                                             std::string& source,
@@ -2850,9 +2862,10 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
 
   const char* in = source.c_str();
   const char* last = in;
+  std::stack<t_lookup> openstack;
   bool error = false;
   bool done = false;
-  this->EVISOpenStack.push_front(VariableLookup());
+  openstack.push(t_lookup());
   cmake::MessageType mtype = cmake::LOG;
 
   do
@@ -2861,22 +2874,22 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
     switch(inc)
       {
       case '}':
-        if(this->EVISOpenStack.size() > 1)
+        if(openstack.size() > 1)
           {
-          VariableLookup var = this->EVISOpenStack.front();
-          this->EVISOpenStack.pop_front();
-          std::string& lookup = var.LookupStart;
+          t_lookup var = openstack.top();
+          openstack.pop();
+          std::string& lookup = var.lookup;
           lookup.append(last, in - last);
           const char* value = NULL;
           static const std::string lineVar = "CMAKE_CURRENT_LIST_LINE";
-          switch(var.Domain)
+          switch(var.domain)
             {
             case NORMAL:
               if(filename && lookup == lineVar)
                 {
                 cmOStringStream ostr;
                 ostr << line;
-                this->EVISOpenStack.front().LookupStart.append(ostr.str());
+                openstack.top().lookup.append(ostr.str());
                 }
               else
                 {
@@ -2929,7 +2942,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
                 }
               }
             }
-          this->EVISOpenStack.front().LookupStart.append(result);
+          openstack.top().lookup.append(result);
           // Start looking from here on out.
           last = in + 1;
           }
@@ -2937,7 +2950,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
       case '$':
         if(!atOnly)
           {
-          VariableLookup lookup;
+          t_lookup lookup;
           const char* next = in + 1;
           const char* start = NULL;
           char nextc = *next;
@@ -2945,27 +2958,27 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
             {
             // Looking for a variable.
             start = in + 2;
-            lookup.Domain = NORMAL;
+            lookup.domain = NORMAL;
             }
           else if(nextc == '<')
             {
             }
           else if(!nextc)
             {
-            this->EVISOpenStack.front().LookupStart.append(last, next - last);
+            openstack.top().lookup.append(last, next - last);
             last = next;
             }
           else if(cmHasLiteralPrefix(next, "ENV{"))
             {
             // Looking for an environment variable.
             start = in + 5;
-            lookup.Domain = ENVIRONMENT;
+            lookup.domain = ENVIRONMENT;
             }
           else if(cmHasLiteralPrefix(next, "CACHE{"))
             {
             // Looking for a cache variable.
             start = in + 7;
-            lookup.Domain = CACHE;
+            lookup.domain = CACHE;
             }
           else
             {
@@ -2981,10 +2994,10 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
             }
           if(start)
             {
-            this->EVISOpenStack.front().LookupStart.append(last, in - last);
+            openstack.top().lookup.append(last, in - last);
             last = start;
             in = start - 1;
-            this->EVISOpenStack.push_front(lookup);
+            openstack.push(lookup);
             }
           break;
           }
@@ -2995,23 +3008,23 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           char nextc = *next;
           if(nextc == 't')
             {
-            this->EVISOpenStack.front().LookupStart.append(last, in - last);
-            this->EVISOpenStack.front().LookupStart.append("\t");
+            openstack.top().lookup.append(last, in - last);
+            openstack.top().lookup.append("\t");
             last = next + 1;
             }
           else if(nextc == 'n')
             {
-            this->EVISOpenStack.front().LookupStart.append(last, in - last);
-            this->EVISOpenStack.front().LookupStart.append("\n");
+            openstack.top().lookup.append(last, in - last);
+            openstack.top().lookup.append("\n");
             last = next + 1;
             }
           else if(nextc == 'r')
             {
-            this->EVISOpenStack.front().LookupStart.append(last, in - last);
-            this->EVISOpenStack.front().LookupStart.append("\r");
+            openstack.top().lookup.append(last, in - last);
+            openstack.top().lookup.append("\r");
             last = next + 1;
             }
-          else if(nextc == ';' && this->EVISOpenStack.size() == 1)
+          else if(nextc == ';' && openstack.size() == 1)
             {
             // Handled in ExpandListArgument; pass the backslash literally.
             }
@@ -3032,7 +3045,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           else
             {
             // Take what we've found so far, skipping the escape character.
-            this->EVISOpenStack.front().LookupStart.append(last, in - last);
+            openstack.top().lookup.append(last, in - last);
             // Start tracking from the next character.
             last = in + 1;
             }
@@ -3068,8 +3081,8 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
               result = cmSystemTools::EscapeQuotes(result.c_str());
               }
             // Skip over the variable.
-            this->EVISOpenStack.front().LookupStart.append(last, in - last);
-            this->EVISOpenStack.front().LookupStart.append(result);
+            openstack.top().lookup.append(last, in - last);
+            openstack.top().lookup.append(result);
             in = nextAt;
             last = in + 1;
             break;
@@ -3079,17 +3092,16 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
         /* FALLTHROUGH */
       default:
         {
-        if(this->EVISOpenStack.size() > 1 &&
+        if(openstack.size() > 1 &&
            !(isalnum(inc) || inc == '_' ||
              inc == '/' || inc == '.' ||
              inc == '+' || inc == '-' ||
-             (this->EVISOpenStack.front().Domain == ENVIRONMENT && (
+             (openstack.top().domain == ENVIRONMENT && (
               inc == '(' || inc == ')'))))
           {
           errorstr += "Invalid character (\'";
           errorstr += inc;
-          errorstr += "\') in a variable name: " +
-                      this->EVISOpenStack.front().LookupStart;
+          errorstr += "\') in a variable name: " + openstack.top().lookup;
           mtype = cmake::FATAL_ERROR;
           error = true;
           }
@@ -3100,7 +3112,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
     } while(!error && !done && *++in);
 
   // Check for open variable references yet.
-  if(!error && this->EVISOpenStack.size() != 1)
+  if(!error && openstack.size() != 1)
     {
     // There's an open variable reference waiting.  Policy CMP0010 flags
     // whether this is an error or not.  The new parser now enforces
@@ -3130,12 +3142,10 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
   else
     {
     // Append the rest of the unchanged part of the string.
-    this->EVISOpenStack.front().LookupStart.append(last);
+    openstack.top().lookup.append(last);
 
-    source = this->EVISOpenStack.front().LookupStart;
+    source = openstack.top().lookup;
     }
-
-  this->EVISOpenStack.clear();
 
   return mtype;
 }

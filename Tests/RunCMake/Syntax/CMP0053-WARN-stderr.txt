@@ -1,0 +1,20 @@
+^CMake Warning \(dev\) at CMP0053-WARN.cmake:2 \(message\):
+  Policy CMP0053 is not set: Use the new variable expansion rules.  Run
+  "cmake --help-policy CMP0053" for policy details.  Use the cmake_policy
+  command to set the policy and suppress this warning.
+
+    Input: '\\'
+    Old behavior is accepted and the new behavior causes an error: 'Syntax error in cmake code at
+    .*/Tests/RunCMake/Syntax/CMP0053-WARN.cmake:2
+
+  when parsing string
+
+    \\
+
+  Invalid character escape '\\' \(at end of input\).'
+Call Stack \(most recent call first\):
+  CMP0053-WARN.cmake:5 \(escape\)
+  CMakeLists.txt:3 \(include\)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+\\$

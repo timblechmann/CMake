@@ -108,6 +108,8 @@ public:
     CMP0052, ///< Reject source and build dirs in installed
     /// INTERFACE_INCLUDE_DIRECTORIES
 
+    CMP0053, ///< Use the new EVIS parser and rules
+
     /** \brief Always the last entry.
      *
      * Useful mostly to avoid adding a comma the last policy when adding a new

@@ -1,0 +1,8 @@
+^-->semicolon<--
+-->dollar<--
+-->brace<--
+-->bracket<--
+-->newline<--
+-->octothorpe<--
+-->top-levelsemicolon<--
+-->top-level;escaped;semicolon<--$

@@ -1,0 +1,26 @@
+CMP0053
+-------
+
+Use new variable expansion rules.
+
+CMake 3.0 and lower used an older, slower implementation of variable expansion
+which offered some behavior no longer allowed by the new parser. Specifically,
+'@' expansion is no longer performed in files not configured using
+:command:`configure_file` or the CONFIGURE signature of :command:`string` and
+literal variable names are restricted to alphanumerics and the characters
+"./-+" and in environment variables "()" are also allowed. If variables with
+other characters are required, use
+
+.. code-block:: cmake
+
+  set(varname "disallowschars&")
+  message("${${varname}}")
+
+This policy also enforces :policy:`CMP0010` unconditionally.
+
+The OLD behavior for this policy is to use the old variable expansion parser.
+The NEW behavior is to use the new variable expansion rules.
+
+This policy was introduced in CMake version 3.1. CMake version |release| warns
+when the policy is not set and uses OLD behavior.  Use the cmake_policy
+command to set it to OLD or NEW explicitly.

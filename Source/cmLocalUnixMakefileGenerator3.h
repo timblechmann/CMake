@@ -168,7 +168,7 @@ public:
                                    const std::string& tgt);
 
   // append flags to a string
-  virtual void AppendFlags(std::string& flags, const char* newFlags);
+  virtual void AppendFlags(std::string& flags, const std::string& newFlags);
 
   // append an echo command
   enum EchoColor { EchoNormal, EchoDepend, EchoBuild, EchoLink,

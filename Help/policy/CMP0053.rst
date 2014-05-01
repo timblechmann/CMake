@@ -28,6 +28,12 @@ cleaned up to simplify the behavior.  Specifically:
 * The setting of policy :policy:`CMP0010` is not considered,
   so improper variable reference syntax is always an error.
 
+* More characters are allowed to be escaped in variable names.
+  Previously, only ``()#" \#@^`` were valid characters to
+  escape. Now any non-alphanumeric, non-semicolon, non-NUL
+  character may be escaped following the ``escape_identity``
+  rule from :manual:`cmake-language`.
+
 The ``OLD`` behavior for this policy is to honor the legacy behavior for
 variable references and escape sequences.  The ``NEW`` behavior is to
 use the simpler variable expansion and escape sequence evaluation rules.

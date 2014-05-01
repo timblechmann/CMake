@@ -42,11 +42,16 @@ macro(test_incremental def)
   try_compile(RESULT
     "${CMAKE_CURRENT_BINARY_DIR}/IncrementalMocBuild_${def}"
     "${CMAKE_CURRENT_SOURCE_DIR}/IncrementalMoc"
-    IncrementalMoc_${def}
-    CMAKE_FLAGS -D${def}=0 "-DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}")
+    IncrementalMoc
+    CMAKE_FLAGS -D${def}=0 "-DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}"
+    OUTPUT_VARIABLE output
+    )
   file(TIMESTAMP "${CMAKE_CURRENT_BINARY_DIR}/IncrementalMocBuild_${def}/moc_foo.cpp" tsvar_before "${timeformat}")
   if (NOT tsvar_before)
-    message(SEND_ERROR "Unable to read timestamp from moc file from first build with -D${def}!")
+    message(SEND_ERROR
+      "Unable to read timestamp from moc file from first build with -D${def}!\n"
+      "try_compile output:\n${output}"
+      )
   endif()
 
   execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep 2) # Ensure that the timestamp will change.
@@ -54,11 +59,16 @@ macro(test_incremental def)
   try_compile(RESULT
     "${CMAKE_CURRENT_BINARY_DIR}/IncrementalMocBuild_${def}"
     "${CMAKE_CURRENT_SOURCE_DIR}/IncrementalMoc"
-    IncrementalMoc_${def}
-    CMAKE_FLAGS -D${def}=1 "-DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}")
+    IncrementalMoc
+    CMAKE_FLAGS -D${def}=1 "-DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}"
+    OUTPUT_VARIABLE output
+    )
   file(TIMESTAMP "${CMAKE_CURRENT_BINARY_DIR}/IncrementalMocBuild_${def}/moc_foo.cpp" tsvar_after "${timeformat}")
   if (NOT tsvar_after)
-    message(SEND_ERROR "Unable to read timestamp from moc file from second build!")
+    message(SEND_ERROR
+      "Unable to read timestamp from moc file from second build!\n"
+      "try_compile output:\n${output}"
+      )
   endif()
 
   if (NOT tsvar_after GREATER tsvar_before)

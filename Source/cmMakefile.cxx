@@ -2883,6 +2883,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           result.append(last, in - last);
           std::string const& lookup = result.substr(var.loc);
           const char* value = NULL;
+          std::string varresult;
           static const std::string lineVar = "CMAKE_CURRENT_LIST_LINE";
           switch(var.domain)
             {
@@ -2891,7 +2892,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
                 {
                 cmOStringStream ostr;
                 ostr << line;
-                result.append(ostr.str());
+                varresult = ostr.str();
                 }
               else
                 {
@@ -2906,7 +2907,6 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
               break;
             }
           // Get the string we're meant to append to.
-          std::string varresult;
           if(value)
             {
             if(escapeQuotes)

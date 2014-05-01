@@ -1,7 +1,7 @@
 ^CMake Warning \(dev\) at CMP0053-WARN.cmake:2 \(message\):
-  Policy CMP0053 is not set: Use the new variable expansion rules.  Run
-  "cmake --help-policy CMP0053" for policy details.  Use the cmake_policy
-  command to set the policy and suppress this warning.
+  Policy CMP0053 is not set: Simplify variable reference and escape sequence
+  evaluation.  Run "cmake --help-policy CMP0053" for policy details.  Use the
+  cmake_policy command to set the policy and suppress this warning.
 
     Input: '\\'
     Old behavior is accepted and the new behavior causes an error: 'Syntax error in cmake code at

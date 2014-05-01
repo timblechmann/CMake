@@ -25,8 +25,8 @@ cleaned up to simplify the behavior.  Specifically:
     set(varname "otherwise & disallowed $ characters")
     message("${${varname}}")
 
-* The setting of policy :policy:`CMP0010` is not considered
-  so bad variable reference syntax is always an error.
+* The setting of policy :policy:`CMP0010` is not considered,
+  so improper variable reference syntax is always an error.
 
 The ``OLD`` behavior for this policy is to honor the legacy behavior for
 variable references and escape sequences.  The ``NEW`` behavior is to

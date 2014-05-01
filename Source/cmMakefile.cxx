@@ -3101,7 +3101,9 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           {
           errorstr += "Invalid character (\'";
           errorstr += inc;
-          errorstr += "\') in a variable name: " + openstack.top().lookup;
+          openstack.top().lookup.append(last, in - last);
+          errorstr += "\') in a variable name: "
+                      "'" + openstack.top().lookup + "'";
           mtype = cmake::FATAL_ERROR;
           error = true;
           }

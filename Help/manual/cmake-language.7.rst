@@ -409,9 +409,14 @@ interpret the strings as values of other types.
 The :command:`set` and :command:`unset` commands explicitly
 set or unset a variable, but other commands have semantics
 that modify variables as well.
-Variable names are case-sensitive and may consist of almost
-any text, but we recommend sticking to names consisting only
-of alphanumeric characters plus ``_`` and ``-``.
+Variable names are case-sensitive and may consist of alphanumeric characters
+plus the characters ``/_.+-``. If other characters are required (e.g., to
+support literal variables no longer accepted by :policy:`CMP0053`), the
+following may be used:
+
+.. code-block:: cmake
+
+ set(name "old_variable_name@") # Use ${${name}}
 
 Variables have dynamic scope.  Each variable "set" or "unset"
 creates a binding in the current scope:

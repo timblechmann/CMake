@@ -296,16 +296,15 @@ An *escape sequence* is a ``\`` followed by one character:
 
 .. productionlist::
  escape_sequence: `escape_identity` | `escape_encoded` | `escape_semicolon`
- escape_identity: '\(' | '\)' | '\#' | '\"' | '\ ' |
-                : '\\' | '\$' | '\@' | '\^'
+ escape_identity: '\' <match '[^a-zA-Z]'>
  escape_encoded: '\t' | '\r' | '\n'
  escape_semicolon: '\;'
 
-A ``\`` followed by one of ``()#" \#@^`` simply encodes the literal
+A ``\`` followed by a non-alphanumeric character simply encodes the literal
 character without interpreting it as syntax.  A ``\t``, ``\r``, or ``\n``
-encodes a tab, carriage return, or newline character, respectively.
-A ``\;`` encodes itself but may be used in an `Unquoted Argument`_
-to encode the ``;`` without dividing the argument value on it.
+encodes a tab, carriage return, or newline character, respectively. A ``\;``
+encodes itself but may be used in an `Unquoted Argument`_ to encode the ``;``
+without dividing the argument value on it.
 
 .. _`Variable References`:
 

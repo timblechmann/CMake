@@ -2841,7 +2841,7 @@ typedef enum
 struct t_lookup
   {
   t_domain domain;
-  std::string lookup;
+  size_t loc;
   };
 
 cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
@@ -2862,6 +2862,8 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
 
   const char* in = source.c_str();
   const char* last = in;
+  std::string result;
+  result.reserve(source.size());
   std::stack<t_lookup> openstack;
   bool error = false;
   bool done = false;
@@ -2878,8 +2880,8 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           {
           t_lookup var = openstack.top();
           openstack.pop();
-          std::string& lookup = var.lookup;
-          lookup.append(last, in - last);
+          result.append(last, in - last);
+          std::string const& lookup = result.substr(var.loc);
           const char* value = NULL;
           static const std::string lineVar = "CMAKE_CURRENT_LIST_LINE";
           switch(var.domain)
@@ -2889,7 +2891,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
                 {
                 cmOStringStream ostr;
                 ostr << line;
-                openstack.top().lookup.append(ostr.str());
+                result.append(ostr.str());
                 }
               else
                 {
@@ -2904,16 +2906,16 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
               break;
             }
           // Get the string we're meant to append to.
-          std::string result;
+          std::string varresult;
           if(value)
             {
             if(escapeQuotes)
               {
-              result = cmSystemTools::EscapeQuotes(value);
+              varresult = cmSystemTools::EscapeQuotes(value);
               }
             else
               {
-              result = value;
+              varresult = value;
               }
             }
           else if(!removeEmpty)
@@ -2942,7 +2944,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
                 }
               }
             }
-          openstack.top().lookup.append(result);
+          result.replace(var.loc, result.size() - var.loc, varresult);
           // Start looking from here on out.
           last = in + 1;
           }
@@ -2965,7 +2967,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
             }
           else if(!nextc)
             {
-            openstack.top().lookup.append(last, next - last);
+            result.append(last, next - last);
             last = next;
             }
           else if(cmHasLiteralPrefix(next, "ENV{"))
@@ -2994,9 +2996,10 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
             }
           if(start)
             {
-            openstack.top().lookup.append(last, in - last);
+            result.append(last, in - last);
             last = start;
             in = start - 1;
+            lookup.loc = result.size();
             openstack.push(lookup);
             }
           break;
@@ -3008,20 +3011,20 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           char nextc = *next;
           if(nextc == 't')
             {
-            openstack.top().lookup.append(last, in - last);
-            openstack.top().lookup.append("\t");
+            result.append(last, in - last);
+            result.append("\t");
             last = next + 1;
             }
           else if(nextc == 'n')
             {
-            openstack.top().lookup.append(last, in - last);
-            openstack.top().lookup.append("\n");
+            result.append(last, in - last);
+            result.append("\n");
             last = next + 1;
             }
           else if(nextc == 'r')
             {
-            openstack.top().lookup.append(last, in - last);
-            openstack.top().lookup.append("\r");
+            result.append(last, in - last);
+            result.append("\r");
             last = next + 1;
             }
           else if(nextc == ';' && openstack.size() == 1)
@@ -3045,7 +3048,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           else
             {
             // Take what we've found so far, skipping the escape character.
-            openstack.top().lookup.append(last, in - last);
+            result.append(last, in - last);
             // Start tracking from the next character.
             last = in + 1;
             }
@@ -3075,14 +3078,14 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
                 "0123456789/_.+-"))
             {
             std::string variable(in + 1, nextAt - in - 1);
-            std::string result = this->GetSafeDefinition(variable.c_str());
+            std::string varresult = this->GetSafeDefinition(variable);
             if(escapeQuotes)
               {
-              result = cmSystemTools::EscapeQuotes(result.c_str());
+              varresult = cmSystemTools::EscapeQuotes(varresult);
               }
             // Skip over the variable.
-            openstack.top().lookup.append(last, in - last);
-            openstack.top().lookup.append(result);
+            result.append(last, in - last);
+            result.append(varresult);
             in = nextAt;
             last = in + 1;
             break;
@@ -3101,9 +3104,9 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
           {
           errorstr += "Invalid character (\'";
           errorstr += inc;
-          openstack.top().lookup.append(last, in - last);
+          result.append(last, in - last);
           errorstr += "\') in a variable name: "
-                      "'" + openstack.top().lookup + "'";
+                      "'" + result.substr(openstack.top().loc) + "'";
           mtype = cmake::FATAL_ERROR;
           error = true;
           }
@@ -3144,9 +3147,9 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
   else
     {
     // Append the rest of the unchanged part of the string.
-    openstack.top().lookup.append(last);
+    result.append(last);
 
-    source = openstack.top().lookup;
+    source = result;
     }
 
   return mtype;

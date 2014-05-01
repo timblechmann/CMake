@@ -1,26 +1,38 @@
 CMP0053
 -------
 
-Use new variable expansion rules.
+Simplify variable reference and escape sequence evaluation.
 
-CMake 3.0 and lower used an older, slower implementation of variable expansion
-which offered some behavior no longer allowed by the new parser. Specifically,
-'@' expansion is no longer performed in files not configured using
-:command:`configure_file` or the CONFIGURE signature of :command:`string` and
-literal variable names are restricted to alphanumerics and the characters
-"./-+" and in environment variables "()" are also allowed. If variables with
-other characters are required, use
+CMake 3.1 introduced a much faster implementation of evaluation of the
+:ref:`Variable References` and :ref:`Escape Sequences` documented in the
+:manual:`cmake-language(7)` manual.  While the behavior is identical
+to the legacy implementation in most cases, some corner cases were
+cleaned up to simplify the behavior.  Specifically:
 
-.. code-block:: cmake
+* Expansion of ``@VAR@`` reference syntax defined by the
+  :command:`configure_file` and :command:`string(CONFIGURE)`
+  commands is no longer performed in other contexts.
 
-  set(varname "disallowschars&")
-  message("${${varname}}")
+* Literal ``${VAR}`` reference syntax may contain only
+  alphanumeric characters (``A-Z``, ``a-z``, ``0-9``) and
+  the characters ``_``, ``.``, ``/``, ``-``, and ``+``.
+  Literal ``$ENV{VAR}`` reference syntax may also use
+  ``(`` and ``)``.  Variables with other characters in
+  their name may still be referenced indirectly, e.g.
 
-This policy also enforces :policy:`CMP0010` unconditionally.
+  .. code-block:: cmake
 
-The OLD behavior for this policy is to use the old variable expansion parser.
-The NEW behavior is to use the new variable expansion rules.
+    set(varname "otherwise & disallowed $ characters")
+    message("${${varname}}")
 
-This policy was introduced in CMake version 3.1. CMake version |release| warns
-when the policy is not set and uses OLD behavior.  Use the cmake_policy
-command to set it to OLD or NEW explicitly.
+* The setting of policy :policy:`CMP0010` is not considered
+  so bad variable reference syntax is always an error.
+
+The ``OLD`` behavior for this policy is to honor the legacy behavior for
+variable references and escape sequences.  The ``NEW`` behavior is to
+use the simpler variable expansion and escape sequence evaluation rules.
+
+This policy was introduced in CMake version 3.1.
+CMake version |release| warns when the policy is not set and uses
+``OLD`` behavior.  Use the :command:`cmake_policy` command to set
+it to ``OLD`` or ``NEW`` explicitly.

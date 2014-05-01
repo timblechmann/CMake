@@ -357,7 +357,7 @@ cmPolicies::cmPolicies()
 
   this->DefinePolicy(
     CMP0053, "CMP0053",
-    "Use the new variable expansion rules.",
+    "Simplify variable reference and escape sequence evaluation.",
     3,1,0, cmPolicies::WARN);
 }
 

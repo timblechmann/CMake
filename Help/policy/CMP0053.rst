@@ -32,7 +32,8 @@ cleaned up to simplify the behavior.  Specifically:
   Previously, only ``()#" \#@^`` were valid characters to
   escape. Now any non-alphanumeric, non-semicolon, non-NUL
   character may be escaped following the ``escape_identity``
-  rule from :manual:`cmake-language`.
+  production in the :ref:`Escape Sequences` section of the
+  :manual:`cmake-language(7)` manual.
 
 The ``OLD`` behavior for this policy is to honor the legacy behavior for
 variable references and escape sequences.  The ``NEW`` behavior is to

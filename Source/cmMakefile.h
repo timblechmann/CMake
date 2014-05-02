@@ -909,7 +909,12 @@ protected:
 
   // libraries, classes, and executables
   mutable cmTargets Targets;
-  std::map<std::string, cmTarget*> AliasTargets;
+#if defined(CMAKE_BUILD_WITH_CMAKE)
+  typedef cmsys::hash_map<std::string, cmTarget*> TargetMap;
+#else
+  typedef std::map<std::string, cmTarget*> TargetMap;
+#endif
+  TargetMap AliasTargets;
   cmGeneratorTargetsType GeneratorTargets;
   std::vector<cmSourceFile*> SourceFiles;
 
@@ -1010,12 +1015,7 @@ private:
   friend class cmMakefileCall;
 
   std::vector<cmTarget*> ImportedTargetsOwned;
-#if defined(CMAKE_BUILD_WITH_CMAKE)
-  typedef cmsys::hash_map<std::string, cmTarget*> ImportedTargetMap;
-#else
-  typedef std::map<std::string, cmTarget*> ImportedTargetMap;
-#endif
-  ImportedTargetMap ImportedTargets;
+  TargetMap ImportedTargets;
 
   // Internal policy stack management.
   void PushPolicy(bool weak = false,

@@ -296,15 +296,18 @@ An *escape sequence* is a ``\`` followed by one character:
 
 .. productionlist::
  escape_sequence: `escape_identity` | `escape_encoded` | `escape_semicolon`
- escape_identity: '\' <match '[^a-zA-Z]'>
+ escape_identity: '\' <match '[^A-Za-z0-9;]'>
  escape_encoded: '\t' | '\r' | '\n'
  escape_semicolon: '\;'
 
 A ``\`` followed by a non-alphanumeric character simply encodes the literal
 character without interpreting it as syntax.  A ``\t``, ``\r``, or ``\n``
 encodes a tab, carriage return, or newline character, respectively. A ``\;``
-encodes itself but may be used in an `Unquoted Argument`_ to encode the ``;``
-without dividing the argument value on it.
+outside of any `Variable References`_  encodes itself but may be used in an
+`Unquoted Argument`_ to encode the ``;`` without dividing the argument
+value on it.  A ``\;`` inside `Variable References`_ encodes the literal
+``;`` character.  (See also policy :policy:`CMP0053` documentation for
+historical considerations.)
 
 .. _`Variable References`:
 
@@ -317,6 +320,11 @@ A variable reference is replaced by the value of the variable,
 or by the empty string if the variable is not set.
 Variable references can nest and are evaluated from the
 inside out, e.g. ``${outer_${inner_variable}_variable}``.
+
+Literal variable references may consist of alphanumeric characters,
+the characters ``/_.+-``, and `Escape Sequences`_.  Nested references
+may be used to evaluate variables of any name.  (See also policy
+:policy:`CMP0053` documentation for historical considerations.)
 
 The `Variables`_ section documents the scope of variable names
 and how their values are set.
@@ -408,14 +416,9 @@ interpret the strings as values of other types.
 The :command:`set` and :command:`unset` commands explicitly
 set or unset a variable, but other commands have semantics
 that modify variables as well.
-Variable names are case-sensitive and may consist of alphanumeric characters
-plus the characters ``/_.+-``. If other characters are required (e.g., to
-support literal variables no longer accepted by :policy:`CMP0053`), the
-following may be used:
-
-.. code-block:: cmake
-
- set(name "old_variable_name@") # Use ${${name}}
+Variable names are case-sensitive and may consist of almost
+any text, but we recommend sticking to names consisting only
+of alphanumeric characters plus ``_`` and ``-``.
 
 Variables have dynamic scope.  Each variable "set" or "unset"
 creates a binding in the current scope:

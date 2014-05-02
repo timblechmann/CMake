@@ -956,15 +956,15 @@ cmLocalUnixMakefileGenerator3
 
 //----------------------------------------------------------------------------
 void cmLocalUnixMakefileGenerator3::AppendFlags(std::string& flags,
-                                                const char* newFlags)
+                                                const std::string& newFlags)
 {
-  if(this->WatcomWMake && newFlags && *newFlags)
+  if(this->WatcomWMake && !newFlags.empty())
     {
     std::string newf = newFlags;
     if(newf.find("\\\"") != newf.npos)
       {
       cmSystemTools::ReplaceString(newf, "\\\"", "\"");
-      this->cmLocalGenerator::AppendFlags(flags, newf.c_str());
+      this->cmLocalGenerator::AppendFlags(flags, newf);
       return;
       }
     }

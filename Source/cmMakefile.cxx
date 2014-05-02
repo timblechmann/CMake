@@ -2456,6 +2456,7 @@ const char* cmMakefile::GetDefinition(const std::string& name) const
     {
     this->Internal->VarUsageStack.top().insert(name);
     }
+
   const char* def = this->Internal->VarStack.top().Get(name);
   if(!def)
     {

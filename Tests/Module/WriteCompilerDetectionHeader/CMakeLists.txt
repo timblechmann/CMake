@@ -13,6 +13,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include(WriteCompilerDetectionHeader)
 
+get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
+
 write_compiler_detection_header(
   FILE "${CMAKE_CURRENT_BINARY_DIR}/test_compiler_detection.h"
   PREFIX TEST
@@ -21,7 +23,7 @@ write_compiler_detection_header(
   PROLOG "// something"
   EPILOG "// more"
   FEATURES
-    ${CMAKE_CXX_KNOWN_FEATURES}
+    ${known_features}
 )
 
 macro(set_defines target true_defs false_defs)

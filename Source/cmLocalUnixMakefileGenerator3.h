@@ -169,6 +169,7 @@ public:
 
   // append flags to a string
   virtual void AppendFlags(std::string& flags, const std::string& newFlags);
+  using cmMakefile::AppendFlags;
 
   // append an echo command
   enum EchoColor { EchoNormal, EchoDepend, EchoBuild, EchoLink,

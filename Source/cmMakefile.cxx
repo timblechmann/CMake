@@ -2763,6 +2763,7 @@ typedef enum
   } t_domain;
 struct t_lookup
   {
+  t_lookup(): domain(NORMAL), loc(0) {}
   t_domain domain;
   size_t loc;
   };
@@ -3021,9 +3022,7 @@ cmake::MessageType cmMakefile::ExpandVariablesInStringNew(
         if(openstack.size() > 1 &&
            !(isalnum(inc) || inc == '_' ||
              inc == '/' || inc == '.' ||
-             inc == '+' || inc == '-' ||
-             (openstack.top().domain == ENVIRONMENT && (
-              inc == '(' || inc == ')'))))
+             inc == '+' || inc == '-'))
           {
           errorstr += "Invalid character (\'";
           errorstr += inc;

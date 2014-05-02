@@ -1,14 +1,3 @@
-#.rst:
-# CMakeCompilerIdDetection
-# ------------------------
-#
-# This module provides the function compiler_id_detection().
-#
-# The ``COMPILER_ID_DETECTION`` function can be used to generate
-# a string of preprocessor code for compiler detection.
-#
-# This is for internal use only.
-
 
 #=============================================================================
 # Copyright 2014 Stephen Kelly <steveire@gmail.com>

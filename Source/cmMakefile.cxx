@@ -2602,21 +2602,43 @@ const char *cmMakefile::ExpandVariablesInString(std::string& source,
   // ...otherwise, see if there's a difference that needs to be warned about.
   else if(compareResults && (newResult != source || newError != mtype))
     {
-    std::string message =
+    std::string msg =
       this->GetPolicies()->GetPolicyWarning(cmPolicies::CMP0053);
-    message += "\n  Input: \'" + original + "\'";
-    if(newError != mtype)
+    msg += "\n";
+
+    std::string msg_input = original;
+    cmSystemTools::ReplaceString(msg_input, "\n", "\n  ");
+    msg += "For input:\n  '";
+    msg += msg_input;
+    msg += "'\n";
+
+    std::string msg_old = source;
+    cmSystemTools::ReplaceString(msg_old, "\n", "\n  ");
+    msg += "the old evaluation rules produce:\n  '";
+    msg += msg_old;
+    msg += "'\n";
+
+    if(newError == mtype)
       {
-      message += "\n  Old behavior is accepted and "
-                 "the new behavior causes an error: "
-                 "\'" + newErrorstr + "\'";
+      std::string msg_new = newResult;
+      cmSystemTools::ReplaceString(msg_new, "\n", "\n  ");
+      msg += "but the new evaluation rules produce:\n  '";
+      msg += msg_new;
+      msg += "'\n";
       }
     else
       {
-      message += "\n  Old expansion: \'" + source + "\'";
-      message += "\n  New expansion: \'" + newResult + "\'";
+      std::string msg_err = newErrorstr;
+      cmSystemTools::ReplaceString(msg_err, "\n", "\n  ");
+      msg += "but the new evaluation rules produce an error:\n  ";
+      msg += msg_err;
+      msg += "\n";
       }
-    this->IssueMessage(cmake::AUTHOR_WARNING, message);
+
+    msg +=
+      "Using the old result for compatibility since the policy is not set.";
+
+    this->IssueMessage(cmake::AUTHOR_WARNING, msg);
     }
 
   return source.c_str();

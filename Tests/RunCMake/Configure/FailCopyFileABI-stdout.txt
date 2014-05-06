@@ -1,6 +1,6 @@
 -- Detecting C compiler ABI info
 -- Detecting C compiler ABI info - failed
 -- Detecting C compile features
--- Detecting C compile features - failed
+-- Detecting C compile features - .*
 -- Configuring done
 -- Generating done

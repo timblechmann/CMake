@@ -28,7 +28,8 @@ macro(cmake_record_cxx_compile_features)
     record_compiler_features(CXX "-std=${std_version}" ${list})
   endmacro()
 
-  if (UNIX AND NOT APPLE AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.4)
+  if (UNIX AND NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL FreeBSD
+      AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.4)
     _get_clang_features(c++11 CMAKE_CXX11_COMPILE_FEATURES)
     if (_result EQUAL 0)
       _get_clang_features(c++98 CMAKE_CXX98_COMPILE_FEATURES)

@@ -5,7 +5,7 @@
 
   when parsing string
 
-    \${varwithcarriagereturn}
+    \${var\\rwith\\rcarriagereturn}
 
   syntax error, unexpected cal_SYMBOL, expecting } \(26\)
 Call Stack \(most recent call first\):

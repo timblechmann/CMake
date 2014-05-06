@@ -25,7 +25,7 @@ macro(__darwin_compiler_gnu lang)
   set(CMAKE_SHARED_MODULE_CREATE_${lang}_FLAGS "-bundle -Wl,-headerpad_max_install_names")
 
   if(NOT CMAKE_${lang}_COMPILER_VERSION VERSION_LESS 4.3)
-    set(CMAKE_${lang}_SYSTEM_FRAMEWORK_SEARCH_FLAG -iframework)
+    set(CMAKE_${lang}_SYSTEM_FRAMEWORK_SEARCH_FLAG "-iframework ")
   endif()
 endmacro()
 

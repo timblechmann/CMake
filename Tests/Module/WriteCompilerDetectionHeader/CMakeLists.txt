@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(WriteCompilerDetectionHeader)
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU
+if ((NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU
     AND NOT CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+    OR CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp"
     "int main(int,char**) { return 0; }\n"
   )

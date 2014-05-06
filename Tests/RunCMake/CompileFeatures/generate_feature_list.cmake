@@ -1,4 +1,6 @@
 
+enable_language(C)
+
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/c_features.txt"
   "${CMAKE_C_COMPILE_FEATURES}"
 )

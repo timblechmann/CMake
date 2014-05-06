@@ -1,4 +1,6 @@
 
+enable_language(CXX)
+
 add_executable(objlibuser
     empty.cpp
     $<TARGET_OBJECTS:bar>

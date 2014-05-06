@@ -1,1 +1,1 @@
-message("${varwithcarriagereturn}")
+message("${var\rwith\rcarriagereturn}")

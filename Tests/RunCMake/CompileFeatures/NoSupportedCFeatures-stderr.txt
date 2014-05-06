@@ -3,6 +3,6 @@ CMake Error at NoSupportedCFeatures.cmake:3 \(target_compile_features\):
 
   "GNU"
 
-  version 4.8.1.
+  version *[.0-9]+\.
 Call Stack \(most recent call first\):
   CMakeLists.txt:3 \(include\)

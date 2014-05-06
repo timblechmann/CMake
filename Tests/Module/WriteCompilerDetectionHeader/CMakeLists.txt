@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(WriteCompilerDetectionHeader)
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+if ((NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU
+    AND NOT CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+    OR CMAKE_SYSTEM_NAME STREQUAL FreeBSD)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp"
     "int main(int,char**) { return 0; }\n"
   )
@@ -18,7 +20,7 @@ get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
 write_compiler_detection_header(
   FILE "${CMAKE_CURRENT_BINARY_DIR}/test_compiler_detection.h"
   PREFIX TEST
-  COMPILERS GNU
+  COMPILERS GNU Clang
   VERSION 3.1
   PROLOG "// something"
   EPILOG "// more"
@@ -40,7 +42,8 @@ macro(set_defines target true_defs false_defs)
   )
 endmacro()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
+if (CMAKE_CXX_COMPILER_ID STREQUAL GNU
+    OR CMAKE_CXX_COMPILER_ID STREQUAL Clang)
   # False for C++98 mode.
   list(APPEND false_defs EXPECTED_COMPILER_CXX_DELEGATING_CONSTRUCTORS)
   list(APPEND false_defs EXPECTED_COMPILER_CXX_VARIADIC_TEMPLATES)

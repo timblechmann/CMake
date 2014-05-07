@@ -24,9 +24,15 @@ include(${CMAKE_CURRENT_LIST_DIR}/CMakeParseArguments.cmake)
 
 function(compiler_id_detection outvar lang)
 
-  file(GLOB files
+  file(GLOB lang_files
     "${CMAKE_ROOT}/Modules/Compiler/*-${lang}-DetermineCompiler.cmake")
 
+  if (NOT lang STREQUAL Fortran)
+    file(GLOB non_lang_files
+      "${CMAKE_ROOT}/Modules/Compiler/*-DetermineCompiler.cmake")
+  endif()
+
+  set(files ${lang_files} ${non_lang_files})
   if (files)
     foreach(file ${files})
       _readFile(${file})

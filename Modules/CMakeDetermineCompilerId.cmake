@@ -105,7 +105,7 @@ function(CMAKE_DETERMINE_COMPILER_ID_WRITE lang src)
   find_file(src_in ${src}.in PATHS ${CMAKE_ROOT}/Modules ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
   file(READ ${src_in} ID_CONTENT_IN)
 
-  compiler_id_detection(CMAKE_CXX_COMPILER_ID_CONTENT ${lang}
+  compiler_id_detection(CMAKE_${lang}_COMPILER_ID_CONTENT ${lang}
     ID_STRING
     VERSION_STRINGS
     PLATFORM_DEFAULT_COMPILER

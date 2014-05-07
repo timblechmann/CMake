@@ -16,7 +16,6 @@ Properties of Global Scope
    /prop_gbl/ALLOW_DUPLICATE_CUSTOM_TARGETS
    /prop_gbl/AUTOGEN_TARGETS_FOLDER
    /prop_gbl/AUTOMOC_TARGETS_FOLDER
-   /prop_gbl/CMAKE_C_KNOWN_FEATURES
    /prop_gbl/CMAKE_CXX_KNOWN_FEATURES
    /prop_gbl/DEBUG_CONFIGURATIONS
    /prop_gbl/DISABLED_FEATURES
@@ -94,9 +93,6 @@ Properties on Targets
    /prop_tgt/BUILD_WITH_INSTALL_RPATH
    /prop_tgt/BUNDLE_EXTENSION
    /prop_tgt/BUNDLE
-   /prop_tgt/C_EXTENSIONS
-   /prop_tgt/C_STANDARD
-   /prop_tgt/C_STANDARD_REQUIRED
    /prop_tgt/COMPATIBLE_INTERFACE_BOOL
    /prop_tgt/COMPATIBLE_INTERFACE_NUMBER_MAX
    /prop_tgt/COMPATIBLE_INTERFACE_NUMBER_MIN
@@ -112,9 +108,9 @@ Properties on Targets
    /prop_tgt/COMPILE_PDB_OUTPUT_DIRECTORY_CONFIG
    /prop_tgt/CONFIG_OUTPUT_NAME
    /prop_tgt/CONFIG_POSTFIX
-   /prop_tgt/CXX_EXTENSIONS
    /prop_tgt/CXX_STANDARD
    /prop_tgt/CXX_STANDARD_REQUIRED
+   /prop_tgt/CXX_EXTENSIONS
    /prop_tgt/DEBUG_POSTFIX
    /prop_tgt/DEFINE_SYMBOL
    /prop_tgt/EchoString

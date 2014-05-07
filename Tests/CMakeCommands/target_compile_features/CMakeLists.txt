@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(target_compile_features)
 
-if (NOT CMAKE_CXX_COMPILE_FEATURES AND NOT CMAKE_C_COMPILE_FEATURES)
+if (NOT CMAKE_CXX_COMPILE_FEATURES)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/test_dummy.cpp"
     "int main(int,char**) { return 0; }\n"
   )
@@ -10,16 +10,6 @@ if (NOT CMAKE_CXX_COMPILE_FEATURES AND NOT CMAKE_C_COMPILE_FEATURES)
 endif()
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-
-if (NOT CMAKE_CXX_COMPILE_FEATURES)
-  if (CMAKE_C_COMPILE_FEATURES)
-    add_executable(target_compile_features main.c)
-    target_compile_features(target_compile_features
-      PRIVATE c_restrict
-    )
-  endif()
-  return()
-endif()
 
 add_executable(target_compile_features main.cpp)
 target_compile_features(target_compile_features

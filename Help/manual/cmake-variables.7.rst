@@ -257,14 +257,10 @@ Variables for Languages
    :maxdepth: 1
 
    /variable/CMAKE_COMPILER_IS_GNULANG
-   /variable/CMAKE_C_COMPILE_FEATURES
-   /variable/CMAKE_C_EXTENSIONS
-   /variable/CMAKE_C_STANDARD
-   /variable/CMAKE_C_STANDARD_REQUIRED
    /variable/CMAKE_CXX_COMPILE_FEATURES
-   /variable/CMAKE_CXX_EXTENSIONS
    /variable/CMAKE_CXX_STANDARD
    /variable/CMAKE_CXX_STANDARD_REQUIRED
+   /variable/CMAKE_CXX_EXTENSIONS
    /variable/CMAKE_Fortran_MODDIR_DEFAULT
    /variable/CMAKE_Fortran_MODDIR_FLAG
    /variable/CMAKE_Fortran_MODOUT_FLAG

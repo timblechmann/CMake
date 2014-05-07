@@ -191,7 +191,6 @@ function(write_compiler_detection_header
 
   set(compilers
     GNU
-    Clang
   )
   foreach(_comp ${_WCD_COMPILERS})
     list(FIND compilers ${_comp} idx)

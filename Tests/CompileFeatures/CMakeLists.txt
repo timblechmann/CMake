@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(CompileFeatures)
 
-if (NOT CMAKE_CXX_COMPILE_FEATURES AND NOT CMAKE_C_COMPILE_FEATURES)
+if (NOT CMAKE_CXX_COMPILE_FEATURES)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp"
     "int main(int,char**) { return 0; }\n"
   )
@@ -11,51 +11,29 @@ if (NOT CMAKE_CXX_COMPILE_FEATURES AND NOT CMAKE_C_COMPILE_FEATURES)
   return()
 endif()
 
-macro(run_test feature lang)
-  if (";${CMAKE_${lang}_COMPILE_FEATURES};" MATCHES ${feature})
-    add_library(test_${feature} OBJECT ${feature})
+macro(run_test feature)
+  if (";${CMAKE_CXX_COMPILE_FEATURES};" MATCHES ${feature})
+    add_library(test_${feature} OBJECT ${feature}.cpp)
     set_property(TARGET test_${feature}
       PROPERTY COMPILE_FEATURES "${feature}"
     )
   else()
-    list(APPEND non_features_${lang} ${feature})
+    list(APPEND non_features ${feature})
   endif()
-endmacro()
-
-macro(run_cxx_test)
-  run_test(${ARGN} CXX)
-endmacro()
-macro(run_c_test)
-  run_test(${ARGN} C)
 endmacro()
 
 get_property(features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
 foreach(feature ${features})
-  run_cxx_test(${feature})
-endforeach()
-get_property(features GLOBAL PROPERTY CMAKE_C_KNOWN_FEATURES)
-foreach(feature ${features})
-  run_c_test(${feature})
+  run_test(${feature})
 endforeach()
 
 if (CMAKE_CXX_COMPILE_FEATURES)
   include(CheckCXXSourceCompiles)
-  foreach(feature ${non_features_CXX})
+  foreach(feature ${non_features})
     check_cxx_source_compiles("#include \"${CMAKE_CURRENT_SOURCE_DIR}/${feature}.cpp\"\nint main() { return 0; }\n" ${feature}_works)
     if (${feature}_works)
       message(SEND_ERROR
         "Feature ${feature} expected not to work for ${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}.  Update the supported features or blacklist it.")
-    endif()
-  endforeach()
-endif()
-
-if (CMAKE_C_COMPILE_FEATURES)
-  include(CheckCSourceCompiles)
-  foreach(feature ${non_features_C})
-    check_c_source_compiles("#include \"${CMAKE_CURRENT_SOURCE_DIR}/${feature}.c\"\nint main() { return 0; }\n" ${feature}_works)
-    if (${feature}_works)
-      message(SEND_ERROR
-        "Feature ${feature} expected not to work for ${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION}.  Update the supported features or blacklist it.")
     endif()
   endforeach()
 endif()

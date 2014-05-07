@@ -11,25 +11,25 @@ if (NOT CMAKE_CXX_COMPILE_FEATURES)
   return()
 endif()
 
-macro(run_cxx_test feature)
-  if (";${CMAKE_CXX_COMPILE_FEATURES};" MATCHES ${feature})
-    add_library(test_${feature} OBJECT ${feature}.cpp)
+macro(run_test feature lang)
+  if (";${CMAKE_${lang}_COMPILE_FEATURES};" MATCHES ${feature})
+    add_library(test_${feature} OBJECT ${feature})
     set_property(TARGET test_${feature}
       PROPERTY COMPILE_FEATURES "${feature}"
     )
   else()
-    list(APPEND cxx_non_features ${feature})
+    list(APPEND ${lang}_non_features ${feature})
   endif()
 endmacro()
 
 get_property(cxx_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
 foreach(feature ${cxx_features})
-  run_cxx_test(${feature})
+  run_test(${feature} CXX)
 endforeach()
 
 if (CMAKE_CXX_COMPILE_FEATURES)
   include(CheckCXXSourceCompiles)
-  foreach(feature ${cxx_non_features})
+  foreach(feature ${CXX_non_features})
     check_cxx_source_compiles("#include \"${CMAKE_CURRENT_SOURCE_DIR}/${feature}.cpp\"\nint main() { return 0; }\n" ${feature}_works)
     if (${feature}_works)
       message(SEND_ERROR

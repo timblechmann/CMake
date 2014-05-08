@@ -18,8 +18,7 @@ write_compiler_detection_header(
     ${cxx_known_features}
 )
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL GNU
-    OR (CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7))
+if (NOT CMAKE_CXX_COMPILE_FEATURES)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp"
     "int main(int,char**) { return 0; }\n"
   )

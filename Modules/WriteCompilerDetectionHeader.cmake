@@ -198,7 +198,7 @@ function(write_compiler_detection_header
     endif()
   endforeach()
 
-  file(WRITE ${file_arg} "
+  set(file_content "
 // This is a generated file. Do not edit!
 
 #ifndef ${prefix_arg}_COMPILER_DETECTION_H
@@ -206,7 +206,7 @@ function(write_compiler_detection_header
 ")
 
   if (_WCD_PROLOG)
-    file(APPEND "${file_arg}" "\n${_WCD_PROLOG}\n")
+    set(file_content "${file_content}\n${_WCD_PROLOG}\n")
   endif()
 
   foreach(feature ${_WCD_FEATURES})
@@ -230,21 +230,23 @@ function(write_compiler_detection_header
     endforeach()
 
     if(_lang STREQUAL CXX)
-      file(APPEND "${file_arg}" "\n#ifdef __cplusplus\n")
+      set(file_content "${file_content}\n#ifdef __cplusplus\n")
     endif()
 
     compiler_id_detection(ID_CONTENT ${_lang} PREFIX ${prefix_arg}_
       ID_DEFINE
     )
 
-    file(APPEND "${file_arg}" "${ID_CONTENT}\n")
+    set(file_content "${file_content}${ID_CONTENT}\n")
 
     set(pp_if "if")
     foreach(compiler ${_WCD_COMPILERS})
       _load_compiler_variables(${compiler} ${_lang} ${${_lang}_features})
-      file(APPEND "${file_arg}" "\n#  ${pp_if} ${prefix_arg}_COMPILER_IS_${compiler}\n")
-      file(APPEND "${file_arg}"
-          "\n#    if !(${_cmake_oldestSupported_${compiler}})\n#      error Unsupported compiler version\n#    endif\n")
+      set(file_content "${file_content}\n#  ${pp_if} ${prefix_arg}_COMPILER_IS_${compiler}\n")
+      set(file_content "${file_content}
+#    if !(${_cmake_oldestSupported_${compiler}})
+#      error Unsupported compiler version
+#    endif\n")
       set(pp_if "elif")
       foreach(feature ${${_lang}_features})
         string(TOUPPER ${feature} feature_upper)
@@ -256,11 +258,14 @@ function(write_compiler_detection_header
           set(_define_item "\n#      define ${prefix_arg}_${feature_PP} 0\n")
           set(_define_item "\n#    if ${_cmake_feature_test_${compiler}_${feature}}\n#      define ${prefix_arg}_${feature_PP} 1\n#    else${_define_item}#    endif\n")
         endif()
-        file(APPEND "${file_arg}" "${_define_item}")
+        set(file_content "${file_content}${_define_item}")
       endforeach()
     endforeach()
     if(pp_if STREQUAL "elif")
-      file(APPEND "${file_arg}" "\n#  else\n#    error Unsupported compiler\n#  endif\n\n")
+      set(file_content "${file_content}
+#  else
+#    error Unsupported compiler
+#  endif\n")
     endif()
     foreach(feature ${${_lang}_features})
       string(TOUPPER ${feature} feature_upper)
@@ -268,7 +273,7 @@ function(write_compiler_detection_header
       set(def_name ${prefix_arg}_${feature_PP})
       if (feature STREQUAL cxx_constexpr)
         set(def_value "${prefix_arg}_DECL_${feature_upper}")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} constexpr
 #  else
@@ -278,7 +283,7 @@ function(write_compiler_detection_header
       endif()
       if (feature STREQUAL cxx_final)
         set(def_value "${prefix_arg}_DECL_${feature_upper}")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} final
 #  else
@@ -288,7 +293,7 @@ function(write_compiler_detection_header
       endif()
       if (feature STREQUAL cxx_override)
         set(def_value "${prefix_arg}_DECL_${feature_upper}")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} override
 #  else
@@ -302,11 +307,11 @@ function(write_compiler_detection_header
         set(static_assert_struct "template<bool> struct ${prefix_arg}StaticAssert;\ntemplate<> struct ${prefix_arg}StaticAssert<true>{};\n")
         set(def_standard "#    define ${def_value} static_assert(X, #X)\n#    define ${def_value_msg} static_assert(X, MSG)")
         set(def_alternative "${static_assert_struct}#    define ${def_value} sizeof(${prefix_arg}StaticAssert<X>)\n#    define ${def_value_msg} sizeof(${prefix_arg}StaticAssert<X>)")
-        file(APPEND "${file_arg}" "#  if ${def_name}\n${def_standard}\n#  else\n${def_alternative}\n#  endif\n\n")
+        set(file_content "${file_content}#  if ${def_name}\n${def_standard}\n#  else\n${def_alternative}\n#  endif\n\n")
       endif()
       if (feature STREQUAL cxx_alignas)
         set(def_value "${prefix_arg}_ALIGNAS(X)")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} alignas(X)
 #  elif ${prefix_arg}_COMPILER_IS_GNU
@@ -318,7 +323,7 @@ function(write_compiler_detection_header
       endif()
       if (feature STREQUAL cxx_alignof)
         set(def_value "${prefix_arg}_ALIGNOF(X)")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} alignof(X)
 #  elif ${prefix_arg}_COMPILER_IS_GNU
@@ -328,7 +333,7 @@ function(write_compiler_detection_header
       endif()
       if (feature STREQUAL cxx_deleted_functions)
         set(def_value "${prefix_arg}_DELETED_FUNCTION")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} = delete
 #  else
@@ -338,7 +343,7 @@ function(write_compiler_detection_header
       endif()
       if (feature STREQUAL cxx_extern_templates)
         set(def_value "${prefix_arg}_EXTERN_TEMPLATE")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} extern
 #  else
@@ -348,7 +353,7 @@ function(write_compiler_detection_header
       endif()
       if (feature STREQUAL cxx_noexcept)
         set(def_value "${prefix_arg}_NOEXCEPT")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} noexcept
 #    define ${def_value}_EXPR(X) noexcept(X)
@@ -360,7 +365,7 @@ function(write_compiler_detection_header
       endif()
       if (feature STREQUAL cxx_nullptr)
         set(def_value "${prefix_arg}_NULLPTR")
-        file(APPEND "${file_arg}" "
+        set(file_content "${file_content}
 #  if ${def_name}
 #    define ${def_value} nullptr
 #  else
@@ -370,14 +375,19 @@ function(write_compiler_detection_header
       endif()
     endforeach()
     if(_lang STREQUAL CXX)
-      file(APPEND "${file_arg}" "#endif\n")
+      set(file_content "${file_content}#endif\n")
     endif()
 
   endforeach()
 
   if (_WCD_EPILOG)
-    file(APPEND "${file_arg}" "\n${_WCD_EPILOG}\n")
+    set(file_content "${file_content}\n${_WCD_EPILOG}\n")
   endif()
+  set(file_content "${file_content}\n#endif")
 
-  file(APPEND ${file_arg} "\n#endif\n")
+  set(CMAKE_CONFIGURABLE_FILE_CONTENT ${file_content})
+  configure_file("${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in"
+    "${file_arg}"
+    @ONLY
+  )
 endfunction()

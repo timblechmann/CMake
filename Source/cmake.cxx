@@ -2279,7 +2279,6 @@ const char *cmake::GetProperty(const std::string& prop,
     return FOR_EACH_CXX_FEATURE(STRING_LIST_ELEMENT) + 1;
 #undef STRING_LIST_ELEMENT
     }
-
   return this->Properties.GetPropertyValue(prop, scope, chain);
 }
 

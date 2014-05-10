@@ -35,7 +35,7 @@
 # At least one ``<compiler>`` and one ``<feature>`` must be listed. Compilers
 # which are known to CMake, but not specified are detected and a preprocessor
 # ``#error`` is generated for them.  A preprocessor macro matching
-# ``${PREFIX}_COMPILER_IS_${CompilerId}`` is generated for each compiler
+# ``<PREFIX>_COMPILER_IS_${CompilerId}`` is generated for each compiler
 # known to CMake to contain the value ``0`` or ``1``.
 #
 # Feature Test Macros
@@ -43,7 +43,7 @@
 #
 # For each compiler, a preprocessor test of the compiler version is generated
 # denoting whether the each feature is enabled.  A preprocessor macro
-# matching ``${PREFIX}_COMPILER_${FEATURE_NAME_UPPER}`` is generated to
+# matching ``<PREFIX>_COMPILER_${FEATURE_NAME_UPPER}`` is generated to
 # contain the value ``0`` or ``1`` depending on whether the compiler in
 # use supports the feature:
 #
@@ -75,8 +75,7 @@
 # =============
 #
 # Some additional symbol-defines are created for particular features for
-# use as symbols which may be conditionally defined empty. The macros for
-# such symbol defines match ``${PREFIX}_DECL_${FEATURE_NAME_UPPER}``:
+# use as symbols which may be conditionally defined empty:
 #
 # .. code-block:: c++
 #
@@ -92,41 +91,40 @@
 #
 # The following features generate corresponding symbol defines:
 #
-# ========================== ===============
-#         Feature                 Symbol
-# ========================== ===============
-# ``cxx_constexpr``           ``constexpr``
-# ``cxx_deleted_functions``   ``= delete``
-# ``cxx_extern_templates``    ``extern``
-# ``cxx_final``               ``final``
-# ``cxx_noexcept``            ``noexcept``
-# ``cxx_override``            ``override``
-# ========================== ===============
+# ========================== =================================== =================
+#         Feature                          Define                      Symbol
+# ========================== =================================== =================
+# ``cxx_constexpr``           ``<PREFIX>_CONSTEXPR``              ``constexpr``
+# ``cxx_deleted_functions``   ``<PREFIX>_DELETED_FUNCTION``       ``= delete``
+# ``cxx_extern_templates``    ``<PREFIX>_EXTERN_TEMPLATE``        ``extern``
+# ``cxx_final``               ``<PREFIX>_FINAL``                  ``final``
+# ``cxx_noexcept``            ``<PREFIX>_NOEXCEPT``               ``noexcept``
+# ``cxx_noexcept``            ``<PREFIX>_NOEXCEPT_EXPR(X)``       ``noexcept(X)``
+# ``cxx_override``            ``<PREFIX>_OVERRIDE``               ``override``
+# ========================== =================================== =================
 #
-# Compatibility Implemetation Macros
-# ==================================
+# Compatibility Implementation Macros
+# ===================================
 #
 # Some features are suitable for wrapping in a macro with a backward
 # compatibility implementation if the compiler does not support the feature.
 #
 # When the ``cxx_static_assert`` feature is not provided by the compiler,
 # a compatibility implementation is available via the
-# ``${PREFIX}_STATIC_ASSERT`` and ``${PREFIX}_STATIC_ASSERT_MSG``
+# ``<PREFIX>}_STATIC_ASSERT`` and ``<PREFIX>_STATIC_ASSERT_MSG``
 # function-like macros. The macros expand to ``static_assert`` where that
 # compiler feature is available, and to a compatibility implementation
-# otherwise.
+# or compiler extension otherwise.
 #
-# ========================== ================================
-#         Feature                         Define
-# ========================== ================================
-# ``cxx_alignas``              ``@PREFIX@_ALIGNAS``
-# ``cxx_alignof``              ``@PREFIX@_ALIGNOF``
-# ``cxx_deleted_functions``    ``@PREFIX@_DISABLE_COPY``
-# ``cxx_noexcept``             ``@PREFIX@_NOEXCEPT_EXPR(X)``
-# ``cxx_nullptr``              ``@PREFIX@_NULLPTR``
-# ``cxx_static_assert``        ``@PREFIX@_STATIC_ASSERT``
-# ``cxx_static_assert``        ``@PREFIX@_STATIC_ASSERT_MSG``
-# ========================== ================================
+# ====================== ================================ ===================
+#         Feature                    Define                     Symbol
+# ====================== ================================ ===================
+# ``cxx_alignas``         ``<PREFIX>_ALIGNAS``             ``alignas``
+# ``cxx_alignof``         ``<PREFIX>_ALIGNOF``             ``alignof``
+# ``cxx_nullptr``         ``<PREFIX>_NULLPTR``             ``nullptr``
+# ``cxx_static_assert``   ``<PREFIX>_STATIC_ASSERT``       ``static_assert``
+# ``cxx_static_assert``   ``<PREFIX>_STATIC_ASSERT_MSG``   ``static_assert``
+# ====================== ================================ ===================
 
 
 #=============================================================================
@@ -249,7 +247,8 @@ function(write_compiler_detection_header
           "\n#    if !(${_cmake_oldestSupported_${compiler}})\n#      error Unsupported compiler version\n#    endif\n")
       set(pp_if "elif")
       foreach(feature ${${_lang}_features})
-        get_property(feature_PP GLOBAL PROPERTY CMAKE_PP_NAME_${feature})
+        string(TOUPPER ${feature} feature_upper)
+        set(feature_PP "COMPILER_${feature_upper}")
         set(_define_item "\n#    define ${prefix_arg}_${feature_PP} 0\n")
         if (_cmake_feature_test_${compiler}_${feature} STREQUAL "1")
           set(_define_item "\n#    define ${prefix_arg}_${feature_PP} 1\n")
@@ -264,26 +263,40 @@ function(write_compiler_detection_header
       file(APPEND "${file_arg}" "\n#  else\n#    error Unsupported compiler\n#  endif\n\n")
     endif()
     foreach(feature ${${_lang}_features})
-      get_property(symbol_define GLOBAL PROPERTY CMAKE_SYMBOL_DEFINE_${feature})
-      set(def_value ${symbol_define})
-      if (def_value)
-        get_property(feature_PP GLOBAL PROPERTY CMAKE_PP_NAME_${feature})
-        get_property(decl_PP GLOBAL PROPERTY CMAKE_PP_DECL_${feature})
-        set(def_name ${prefix_arg}_${decl_PP})
+      string(TOUPPER ${feature} feature_upper)
+      set(feature_PP "COMPILER_${feature_upper}")
+      set(def_name ${prefix_arg}_${feature_PP})
+      if (feature STREQUAL cxx_constexpr)
+        set(def_value "${prefix_arg}_DECL_${feature_upper}")
         file(APPEND "${file_arg}" "
-#  if ${prefix_arg}_${feature_PP}
-#    define ${def_name} ${def_value}
+#  if ${def_name}
+#    define ${def_value} constexpr
 #  else
-#    define ${def_name}
+#    define ${def_value}
 #  endif
 \n")
       endif()
-    endforeach()
-    foreach(feature ${${_lang}_features})
-      get_property(feature_PP GLOBAL PROPERTY CMAKE_PP_NAME_${feature})
+      if (feature STREQUAL cxx_final)
+        set(def_value "${prefix_arg}_DECL_${feature_upper}")
+        file(APPEND "${file_arg}" "
+#  if ${def_name}
+#    define ${def_value} final
+#  else
+#    define ${def_value}
+#  endif
+\n")
+      endif()
+      if (feature STREQUAL cxx_override)
+        set(def_value "${prefix_arg}_DECL_${feature_upper}")
+        file(APPEND "${file_arg}" "
+#  if ${def_name}
+#    define ${def_value} override
+#  else
+#    define ${def_value}
+#  endif
+\n")
+      endif()
       if (feature STREQUAL cxx_static_assert)
-        get_property(def_name GLOBAL PROPERTY CMAKE_PP_NAME_cxx_static_assert)
-        set(def_name ${prefix_arg}_${def_name})
         set(def_value "${prefix_arg}_STATIC_ASSERT(X)")
         set(def_value_msg "${prefix_arg}_STATIC_ASSERT_MSG(X, MSG)")
         set(static_assert_struct "template<bool> struct ${prefix_arg}StaticAssert;\ntemplate<> struct ${prefix_arg}StaticAssert<true>{};\n")
@@ -292,7 +305,6 @@ function(write_compiler_detection_header
         file(APPEND "${file_arg}" "#  if ${def_name}\n${def_standard}\n#  else\n${def_alternative}\n#  endif\n\n")
       endif()
       if (feature STREQUAL cxx_alignas)
-        set(def_name ${prefix_arg}_${feature_PP})
         set(def_value "${prefix_arg}_ALIGNAS(X)")
         file(APPEND "${file_arg}" "
 #  if ${def_name}
@@ -305,7 +317,6 @@ function(write_compiler_detection_header
 \n")
       endif()
       if (feature STREQUAL cxx_alignof)
-        set(def_name ${prefix_arg}_${feature_PP})
         set(def_value "${prefix_arg}_ALIGNOF(X)")
         file(APPEND "${file_arg}" "
 #  if ${def_name}
@@ -316,7 +327,6 @@ function(write_compiler_detection_header
 \n")
       endif()
       if (feature STREQUAL cxx_deleted_functions)
-        set(def_name ${prefix_arg}_${feature_PP})
         set(def_value "${prefix_arg}_DELETED_FUNCTION")
         file(APPEND "${file_arg}" "
 #  if ${def_name}
@@ -324,15 +334,9 @@ function(write_compiler_detection_header
 #  else
 #    define ${def_value}
 #  endif
-
-#  define ${prefix_arg}_DISABLE_COPY(X) \\
-private: \\
-     X(X const&) ${prefix_arg}_DELETED_FUNCTION; \\
-     X& operator=(X const&) ${prefix_arg}_DELETED_FUNCTION;
 \n")
       endif()
       if (feature STREQUAL cxx_extern_templates)
-        set(def_name ${prefix_arg}_${feature_PP})
         set(def_value "${prefix_arg}_EXTERN_TEMPLATE")
         file(APPEND "${file_arg}" "
 #  if ${def_name}
@@ -343,7 +347,6 @@ private: \\
 \n")
       endif()
       if (feature STREQUAL cxx_noexcept)
-        set(def_name ${prefix_arg}_${feature_PP})
         set(def_value "${prefix_arg}_NOEXCEPT")
         file(APPEND "${file_arg}" "
 #  if ${def_name}
@@ -356,13 +359,12 @@ private: \\
 \n")
       endif()
       if (feature STREQUAL cxx_nullptr)
-        set(def_name ${prefix_arg}_${feature_PP})
         set(def_value "${prefix_arg}_NULLPTR")
         file(APPEND "${file_arg}" "
 #  if ${def_name}
 #    define ${def_value} nullptr
 #  else
-#    define ${def_value} (void*)0
+#    define ${def_value} static_cast<void*>(0)
 #  endif
 \n")
       endif()

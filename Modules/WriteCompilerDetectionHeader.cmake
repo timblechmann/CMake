@@ -32,11 +32,14 @@
 # header. ``EPILOG`` may be specified as text content to write at the end
 # of the header
 #
-# At least one ``<compiler>`` and one ``<feature>`` must be listed. Compilers
+# At least one ``<compiler>`` and one ``<feature>`` must be listed.  Compilers
 # which are known to CMake, but not specified are detected and a preprocessor
 # ``#error`` is generated for them.  A preprocessor macro matching
 # ``<PREFIX>_COMPILER_IS_${CompilerId}`` is generated for each compiler
 # known to CMake to contain the value ``0`` or ``1``.
+#
+# Available features in this version of CMake are listed in the
+# :prop_gbl:`CMAKE_CXX_KNOWN_FEATURES` global property.
 #
 # Feature Test Macros
 # ===================
@@ -114,7 +117,7 @@
 # ``<PREFIX>}_STATIC_ASSERT`` and ``<PREFIX>_STATIC_ASSERT_MSG``
 # function-like macros. The macros expand to ``static_assert`` where that
 # compiler feature is available, and to a compatibility implementation
-# or compiler extension otherwise.
+# otherwise.
 #
 # ====================== ================================ ===================
 #         Feature                    Define                     Symbol

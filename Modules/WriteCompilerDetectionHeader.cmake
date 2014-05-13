@@ -117,10 +117,14 @@
 #
 # When the ``cxx_static_assert`` feature is not provided by the compiler,
 # a compatibility implementation is available via the
-# ``<PREFIX>_STATIC_ASSERT`` and ``<PREFIX>_STATIC_ASSERT_MSG``
-# function-like macros. The macros expand to ``static_assert`` where that
-# compiler feature is available, and to a compatibility implementation
-# otherwise.
+# ``<PREFIX>_STATIC_ASSERT(COND)`` and
+# ``<PREFIX>_STATIC_ASSERT_MSG(COND, MSG)`` function-like macros. The macros
+# expand to ``static_assert`` where that compiler feature is available, and
+# to a compatibility implementation otherwise. In the first form, the
+# condition is stringified in the message field of ``static_assert``.  In
+# the second form, the message ``MSG`` is passed to the message field of
+# ``static_assert``, or ignored if using the backward compatibility
+# implementation.
 #
 # ====================== ================================ ===================
 #         Feature                    Define                     Symbol

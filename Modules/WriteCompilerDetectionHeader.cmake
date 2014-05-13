@@ -21,12 +21,14 @@
 # The ``write_compiler_detection_header`` function generates the
 # file ``<file>`` with macros which all have the prefix ``<prefix>``.
 #
-# ``VERSION`` may be used to specify compatibility with a specific
-# CMake version.  By default, a file is generated with compatibility with
-# the :variable:`CMAKE_MINIMUM_REQUIRED_VERSION`.  Newer CMake versions may
-# generate additional code, and the ``VERSION`` may be used to maintain
-# compatibility in the generated file while allowing the minimum CMake
-# version of the project to be changed independently.
+# ``VERSION`` may be used to specify the API version to be generated.
+# Future versions of CMake may introduce alternative APIs.  A given
+# API is selected by any ``<version>`` value greater than or equal
+# to the version of CMake that introduced the given API and less
+# than the version of CMake that introduced its succeeding API.
+# The value of the :variable:`CMAKE_MINIMUM_REQUIRED_VERSION`
+# variable is used if no explicit version is specified.
+# (As of CMake version |release| there is only one API version.)
 #
 # ``PROLOG`` may be specified as text content to write at the start of the
 # header. ``EPILOG`` may be specified as text content to write at the end

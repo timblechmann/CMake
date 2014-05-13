@@ -21,8 +21,8 @@
 # The ``write_compiler_detection_header`` function generates the
 # file ``<file>`` with macros which all have the prefix ``<prefix>``.
 #
-# ``VERSION`` may be used to specify a generation compatibility with older
-# CMake versions.  By default, a file is generated with compatibility with
+# ``VERSION`` may be used to specify compatibility with a specific
+# CMake version.  By default, a file is generated with compatibility with
 # the :variable:`CMAKE_MINIMUM_REQUIRED_VERSION`.  Newer CMake versions may
 # generate additional code, and the ``VERSION`` may be used to maintain
 # compatibility in the generated file while allowing the minimum CMake
@@ -35,9 +35,11 @@
 # At least one ``<compiler>`` and one ``<feature>`` must be listed.  Compilers
 # which are known to CMake, but not specified are detected and a preprocessor
 # ``#error`` is generated for them.  A preprocessor macro matching
-# ``<PREFIX>_COMPILER_IS_${CompilerId}`` is generated for each compiler
+# ``<PREFIX>_COMPILER_IS_<compiler>`` is generated for each compiler
 # known to CMake to contain the value ``0`` or ``1``.
 #
+# Possible compiler identifiers are documented with the
+# :variable:`CMAKE_<LANG>_COMPILER_ID` variable.
 # Available features in this version of CMake are listed in the
 # :prop_gbl:`CMAKE_CXX_KNOWN_FEATURES` global property.
 #
@@ -45,10 +47,11 @@
 # ===================
 #
 # For each compiler, a preprocessor test of the compiler version is generated
-# denoting whether the each feature is enabled.  A preprocessor macro
-# matching ``<PREFIX>_COMPILER_${FEATURE_NAME_UPPER}`` is generated to
-# contain the value ``0`` or ``1`` depending on whether the compiler in
-# use supports the feature:
+# denoting whether each feature is enabled.  A preprocessor macro
+# matching ``<PREFIX>_COMPILER_<FEATURE>``, where ``<FEATURE>`` is the
+# upper-case ``<feature>`` name, is generated to contain the value
+# ``0`` or ``1`` depending on whether the compiler in use supports the
+# feature:
 #
 # .. code-block:: cmake
 #
@@ -114,7 +117,7 @@
 #
 # When the ``cxx_static_assert`` feature is not provided by the compiler,
 # a compatibility implementation is available via the
-# ``<PREFIX>}_STATIC_ASSERT`` and ``<PREFIX>_STATIC_ASSERT_MSG``
+# ``<PREFIX>_STATIC_ASSERT`` and ``<PREFIX>_STATIC_ASSERT_MSG``
 # function-like macros. The macros expand to ``static_assert`` where that
 # compiler feature is available, and to a compatibility implementation
 # otherwise.

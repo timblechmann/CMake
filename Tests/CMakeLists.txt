@@ -2144,7 +2144,7 @@ ${CMake_BINARY_DIR}/bin/cmake -DDIR=dev -P ${CMake_SOURCE_DIR}/Utilities/Release
     $<TARGET_FILE:ctest> -T Coverage --debug)
   set_tests_properties(CTestGTMCoverage PROPERTIES
       PASS_REGULAR_EXPRESSION
-      "Process file.*XINDEX.m.*Total LOC:.*127.*Percentage Coverage: 85.83.*"
+      "Process file.*ZZCOVTST.m.*Total LOC:.*23.*Percentage Coverage: 82.61*"
       ENVIRONMENT COVFILE=)
 
   configure_file(
@@ -2161,7 +2161,7 @@ ${CMake_BINARY_DIR}/bin/cmake -DDIR=dev -P ${CMake_SOURCE_DIR}/Utilities/Release
     $<TARGET_FILE:ctest> -T Coverage --debug)
   set_tests_properties(CTestCacheCoverage PROPERTIES
       PASS_REGULAR_EXPRESSION
-      "Process file.*XINDEX.m.*Total LOC:.*125.*Percentage Coverage: 85.60.*"
+      "Process file.*ZZCOVTST.m.*Total LOC:.*22.*Percentage Coverage: 86.36.*"
       ENVIRONMENT COVFILE=)
 
   # Adding a test case for Python Coverage

@@ -276,8 +276,8 @@ bool cmParseGTMCoverage::ParseMCOVLine(std::string const& line,
     // To avoid double counting of line 0 of each entry point,
     // Don't count the lines that do not give an explicit line
     // number.
-    routine.clear();
-    function.clear();
+    routine="";
+    function="";
     }
   else
     {

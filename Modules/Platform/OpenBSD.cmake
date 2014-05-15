@@ -1,5 +1,7 @@
 include(Platform/NetBSD)
 
+unset(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG)
+
 # On OpenBSD, the compile time linker does not share it's configuration with
 # the runtime linker.  This will extract the library search paths from the
 # system's ld.so.hints file which will allow CMake to set the appropriate

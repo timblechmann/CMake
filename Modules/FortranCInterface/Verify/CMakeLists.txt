@@ -9,8 +9,7 @@
 # See the License for more information.
 #=============================================================================
 
-cmake_minimum_required(VERSION ${CMAKE_VERSION})
-cmake_policy(SET CMP0022 OLD) # TODO: This should not be needed.
+cmake_minimum_required(VERSION 2.7)
 project(VerifyFortranC C Fortran)
 
 option(VERIFY_CXX "Whether to verify C++ and Fortran" OFF)

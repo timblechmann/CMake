@@ -22,3 +22,7 @@ set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_OPENBSD_VERSIONING 1)
 # OpenBSD policy requires that shared libraries be installed without
 # executable permission.
 set(CMAKE_INSTALL_SO_NO_EXE 1)
+
+# Shared libraries with no builtin soname may not be linked safely by
+# specifying the file path.
+set(CMAKE_PLATFORM_USES_PATH_WHEN_NO_SONAME 1)

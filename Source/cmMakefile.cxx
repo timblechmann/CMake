@@ -5209,8 +5209,8 @@ bool cmMakefile::IsLaterStandard(std::string const& lang,
 }
 
 //----------------------------------------------------------------------------
-bool cmMakefile::
-HaveCxxFeatureAvailable(cmTarget const* target, const std::string& feature) const
+bool cmMakefile::HaveCxxFeatureAvailable(cmTarget const* target,
+                                         const std::string& feature) const
 {
   bool needCxx98 = false;
   bool needCxx11 = false;

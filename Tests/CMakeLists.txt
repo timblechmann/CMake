@@ -198,6 +198,7 @@ if(BUILD_TESTING)
   ADD_TEST_MACRO(SystemInformation SystemInformation)
   ADD_TEST_MACRO(MathTest MathTest)
   ADD_TEST_MACRO(CompileFeatures CompileFeatures)
+  ADD_TEST_MACRO(CompileFeaturesGenex CompileFeaturesGenex)
   ADD_TEST_MACRO(CMakeCommands.target_compile_features target_compile_features)
 
   # assume no resources building to test

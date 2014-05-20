@@ -1,3 +1,5 @@
+cmake_policy(SET CMP0053 NEW) # Only expand once.
+
 function (watch_callback var access value file stack)
   message(${access})
 endfunction ()

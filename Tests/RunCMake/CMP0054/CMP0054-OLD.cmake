@@ -1,3 +1,4 @@
+cmake_policy(SET CMP0053 NEW) # Only expand once.
 cmake_policy(SET CMP0054 OLD)
 
 function (watch_callback var access value file stack)

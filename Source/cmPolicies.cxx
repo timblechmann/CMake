@@ -359,6 +359,12 @@ cmPolicies::cmPolicies()
     CMP0053, "CMP0053",
     "Simplify variable reference and escape sequence evaluation.",
     3,1,0, cmPolicies::WARN);
+
+  this->DefinePolicy(
+    CMP0054, "CMP0054",
+    "Remove ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS "
+    "variable_watch access type.",
+    3,1,0, cmPolicies::WARN);
 }
 
 cmPolicies::~cmPolicies()

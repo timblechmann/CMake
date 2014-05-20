@@ -1,0 +1,21 @@
+CMP0054
+-------
+
+Deprecate `ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS` :command:`variable_watch`
+access type.
+
+CMake 3.0 and lower allowed switching the access type of variable access to
+`ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS` based on the undocumented
+`CMAKE_ALLOW_UNKNOWN_VARIABLE_READ_ACCESS` variable. Since the callback is
+always called no matter what, just with a different access type based on this
+variable, the access types are now collapsed into one.
+
+The OLD behavior for this policy is to use the
+`ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS` access type based on the
+`CMAKE_ALLOW_UNKNOWN_VARIABLE_READ_ACCESS` variable. The NEW behavior for this
+policy is to always use `UNKNOWN_VARIABLE_READ_ACCESS` as the access type.
+
+This policy was introduced in CMake version 3.1.
+CMake version |release| warns when the policy is not set and uses
+``OLD`` behavior.  Use the :command:`cmake_policy` command to set it
+to ``OLD`` or ``NEW`` explicitly.

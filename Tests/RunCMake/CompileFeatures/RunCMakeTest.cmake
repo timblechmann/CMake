@@ -31,6 +31,13 @@ else()
   run_cmake(LinkImplementationFeatureCycleSolved)
 endif()
 
+if (";${CXX_FEATURES};" MATCHES ";cxx_final;")
+  set(RunCMake_TEST_OPTIONS "-DHAVE_FINAL=1")
+endif()
+run_cmake(NonValidTarget1)
+run_cmake(NonValidTarget2)
+unset(RunCMake_TEST_OPTIONS)
+
 foreach(standard 98 11)
   file(READ
     "${RunCMake_BINARY_DIR}/generate_feature_list-build/cxx${standard}_flag.txt"

@@ -105,4 +105,3 @@ All Policies
    /policy/CMP0051
    /policy/CMP0052
    /policy/CMP0053
-   /policy/CMP0054

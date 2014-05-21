@@ -1,5 +1,4 @@
 watch-variable-policy
 ---------------------
 
-* Policy :policy:`CMP0054` introduced to improve variable lookup performance
-  for uninitialized variables.
+* Remove ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS access type in variable_watch.

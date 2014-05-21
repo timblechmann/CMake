@@ -106,7 +106,6 @@ public:
     CMP0050, ///< Disallow add_custom_command SOURCE signatures
     CMP0051, ///< List TARGET_OBJECTS in SOURCES target property
     CMP0052, ///< Reject source and build dirs in installed
-    CMP0054, ///< Remove ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS access type
     /// INTERFACE_INCLUDE_DIRECTORIES
 
     CMP0053, ///< Simplify variable reference and escape sequence evaluation

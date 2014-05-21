@@ -2472,46 +2472,8 @@ const char* cmMakefile::GetDefinition(const std::string& name) const
       }
     else
       {
-      int type = cmVariableWatch::UNKNOWN_VARIABLE_READ_ACCESS;
-      switch(this->GetPolicyStatus(cmPolicies::CMP0054))
-        {
-        case cmPolicies::WARN:
-        {
-          // Warn if necessary.
-          const char* allow = this->Internal->VarStack.top()
-            .Get("CMAKE_ALLOW_UNKNOWN_VARIABLE_READ_ACCESS");
-          if(cmSystemTools::IsOn(allow))
-            {
-            this->IssueMessage(cmake::AUTHOR_WARNING,
-              this->GetPolicies()->GetPolicyWarning(cmPolicies::CMP0054));
-            // Checking again is unnecessary and doubly expensive (and the
-            // reason for the policy...); just duplicate the old behavior here.
-            type = cmVariableWatch::ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS;
-            }
-          break;
-        }
-        case cmPolicies::OLD:
-        {
-          // OLD behavior is to use ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS if
-          // needed.
-          const char* allow = this->Internal->VarStack.top()
-            .Get("CMAKE_ALLOW_UNKNOWN_VARIABLE_READ_ACCESS");
-          if(cmSystemTools::IsOn(allow))
-            {
-            type = cmVariableWatch::ALLOWED_UNKNOWN_VARIABLE_READ_ACCESS;
-            }
-          break;
-        }
-        case cmPolicies::REQUIRED_IF_USED:
-        case cmPolicies::REQUIRED_ALWAYS:
-          this->IssueMessage(cmake::FATAL_ERROR,
-            this->GetPolicies()->GetRequiredPolicyError(cmPolicies::CMP0054));
-          break;
-        case cmPolicies::NEW:
-          // Do nothing.
-          break;
-        }
-      vv->VariableAccessed(name, type, def, this);
+      vv->VariableAccessed(name,
+          cmVariableWatch::UNKNOWN_VARIABLE_READ_ACCESS, def, this);
       }
     }
 #endif

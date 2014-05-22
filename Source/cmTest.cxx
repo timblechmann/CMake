@@ -34,6 +34,7 @@ cmTest::~cmTest()
 //----------------------------------------------------------------------------
 cmListFileBacktrace const& cmTest::GetBacktrace() const
 {
+  this->Backtrace->MakeRelative();
   return *this->Backtrace;
 }
 

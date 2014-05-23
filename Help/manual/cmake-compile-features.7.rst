@@ -20,17 +20,17 @@ CMake provides a primary user interface based on granular handling of
 the features, not the language standard that introduced the feature.
 
 The :prop_gbl:`CMAKE_C_KNOWN_FEATURES` and
-:prop_gbl:`CMAKE_CXX_KNOWN_FEATURES` variables contains all the features
-known to CMake, regardless of compiler support for the feature.  The
-:variable:`CMAKE_C_COMPILE_FEATURES` and
+:prop_gbl:`CMAKE_CXX_KNOWN_FEATURES` global properties contain all the
+features known to CMake, regardless of compiler support for the feature.
+The :variable:`CMAKE_C_COMPILE_FEATURES` and
 :variable:`CMAKE_CXX_COMPILE_FEATURES` variables contain all features
-known to the compiler, regardless of language standard or compile flags
-needed to use them.
+CMake knows are known to the compiler, regardless of language standard
+or compile flags needed to use them.
 
 Features known to CMake are named mostly following the same convention
-as the clang feature test macros.  The are some execptions, such as
+as the Clang feature test macros.  The are some execptions, such as
 CMake using ``cxx_final`` and ``cxx_override`` instead of the single
-``cxx_override_control`` used by clang.
+``cxx_override_control`` used by Clang.
 
 Compile Feature Requirements
 ============================
@@ -87,7 +87,7 @@ transitive behavior of build properties and usage requirements.
 Note that new use of compile feature requirements may expose
 cross-platform bugs in user code.  For example, the GNU compiler uses the
 ``gnu++98`` language by default as of GCC version 4.8.  User code may
-be relying on that and expecting the ``typeof`` GNU extension to work.
+be relying on that by expecting the ``typeof`` GNU extension to work.
 However, if the :command:`target_compile_features` command is used to
 specify the requirement for ``cxx_constexpr``, a ``-std=c++11`` flag may
 be added, and the ``typeof`` extension would no longer be available.  The

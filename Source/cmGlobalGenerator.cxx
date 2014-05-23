@@ -3032,7 +3032,7 @@ bool cmGlobalGenerator::GenerateCPackPropertiesFile()
   cmMakefile* mf = this->LocalGenerators[0]->GetMakefile();
 
   std::vector<std::string> configs;
-  std::string config = mf->GetConfigurations(configs);
+  std::string config = mf->GetConfigurations(configs, false);
 
   std::string path = this->CMakeInstance->GetStartOutputDirectory();
   path += "/CPackProperties.cmake";

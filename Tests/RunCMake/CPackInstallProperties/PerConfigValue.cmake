@@ -1,7 +1,7 @@
 add_executable(mytest test.cpp)
 
 foreach(CONFIG IN LISTS CMAKE_CONFIGURATION_TYPES)
-  set(TOUPPER ${CONFIG} UPPER_CONFIG)
+  string(TOUPPER ${CONFIG} UPPER_CONFIG)
   set_property(TARGET mytest PROPERTY
     OUTPUT_NAME_${UPPER_CONFIG} bar_${CONFIG})
 endforeach()

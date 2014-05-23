@@ -6,6 +6,7 @@ function(test_property FILE NAME EXPECTED_VALUE)
   endif()
 endfunction()
 
+set(CPACK_BUILD_CONFIG Debug)
 include(${RunCMake_TEST_BINARY_DIR}/CPackProperties.cmake)
 
 include(${RunCMake_TEST_BINARY_DIR}/runtest_info.cmake OPTIONAL)

@@ -40,7 +40,6 @@ void reportError(cmGeneratorExpressionContext *context,
   e << "Error evaluating generator expression:\n"
     << "  " << expr << "\n"
     << result;
-  context->Backtrace.MakeRelative();
   context->Makefile->GetCMakeInstance()
     ->IssueMessage(cmake::FATAL_ERROR, e.str(),
                     context->Backtrace);
@@ -429,7 +428,6 @@ struct CompilerIdNode : public cmGeneratorExpressionNode
           cmOStringStream e;
           e << context->Makefile->GetPolicies()
                       ->GetPolicyWarning(cmPolicies::CMP0044);
-          context->Backtrace.MakeRelative();
           context->Makefile->GetCMakeInstance()
                  ->IssueMessage(cmake::AUTHOR_WARNING,
                                 e.str(), context->Backtrace);

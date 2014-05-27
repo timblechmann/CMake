@@ -448,16 +448,14 @@ void cmTarget::AddUtility(const std::string& u, cmMakefile *makefile)
 }
 
 //----------------------------------------------------------------------------
-cmListFileBacktrace cmTarget::GetUtilityBacktrace(
+cmListFileBacktrace const* cmTarget::GetUtilityBacktrace(
     const std::string& u) const
 {
   std::map<std::string, cmListFileBacktrace>::const_iterator i =
     this->UtilityBacktraces.find(u);
-  if(i == this->UtilityBacktraces.end()) return cmListFileBacktrace();
+  if(i == this->UtilityBacktraces.end()) return 0;
 
-  cmListFileBacktrace bt = i->second;
-  bt.MakeRelative();
-  return bt;
+  return &i->second;
 }
 
 //----------------------------------------------------------------------------
@@ -492,7 +490,6 @@ void cmTarget::ClearLinkMaps()
 //----------------------------------------------------------------------------
 cmListFileBacktrace const& cmTarget::GetBacktrace() const
 {
-  this->Internal->Backtrace.MakeRelative();
   return this->Internal->Backtrace;
 }
 
@@ -646,12 +643,10 @@ static bool processSources(cmTarget const* tgt,
       }
     if (!usedSources.empty())
       {
-      cmListFileBacktrace bt = (*it)->ge->GetBacktrace();
-      bt.MakeRelative();
       mf->GetCMakeInstance()->IssueMessage(cmake::LOG,
                             std::string("Used sources for target ")
                             + tgt->GetName() + ":\n"
-                            + usedSources, bt);
+                            + usedSources, (*it)->ge->GetBacktrace());
       }
     }
   return contextDependent;
@@ -1338,10 +1333,9 @@ void cmTarget::GetTllSignatureTraces(cmOStringStream &s,
                                                                 : "plain");
     s << "The uses of the " << sigString << " signature are here:\n";
     std::set<std::string> emitted;
-    for(std::vector<cmListFileBacktrace>::iterator it = sigs.begin();
+    for(std::vector<cmListFileBacktrace>::const_iterator it = sigs.begin();
         it != sigs.end(); ++it)
       {
-      it->MakeRelative();
       cmListFileBacktrace::const_iterator i = it->begin();
       if(i != it->end())
         {
@@ -2230,12 +2224,10 @@ static void processIncludeDirectories(cmTarget const* tgt,
       }
     if (!usedIncludes.empty())
       {
-      cmListFileBacktrace bt = (*it)->ge->GetBacktrace();
-      bt.MakeRelative();
       mf->GetCMakeInstance()->IssueMessage(cmake::LOG,
                             std::string("Used includes for target ")
                             + tgt->GetName() + ":\n"
-                            + usedIncludes, bt);
+                            + usedIncludes, (*it)->ge->GetBacktrace());
       }
     }
 }
@@ -2422,13 +2414,11 @@ static void processCompileOptionsInternal(cmTarget const* tgt,
       }
     if (!usedOptions.empty())
       {
-      cmListFileBacktrace bt = (*it)->ge->GetBacktrace();
-      bt.MakeRelative();
       mf->GetCMakeInstance()->IssueMessage(cmake::LOG,
                             std::string("Used compile ") + logName
                             + std::string(" for target ")
                             + tgt->GetName() + ":\n"
-                            + usedOptions, bt);
+                            + usedOptions, (*it)->ge->GetBacktrace());
       }
     }
 }

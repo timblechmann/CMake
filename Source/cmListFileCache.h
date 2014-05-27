@@ -14,8 +14,6 @@
 
 #include "cmStandardIncludes.h"
 
-class cmLocalGenerator;
-
 /** \class cmListFileCache
  * \brief A class to cache list file contents.
  *
@@ -68,27 +66,7 @@ struct cmListFileFunction: public cmListFileContext
   std::vector<cmListFileArgument> Arguments;
 };
 
-class cmListFileBacktrace: public std::vector<cmListFileContext>
-{
-  public:
-    cmListFileBacktrace()
-      : LocalGenerator(NULL)
-      , Relative(true)
-    {
-    }
-
-    void MakeRelative();
-  private:
-    friend class cmMakefile;
-    void SetLocalGenerator(cmLocalGenerator* generator)
-    {
-      this->LocalGenerator = generator;
-      this->Relative = false;
-    }
-
-    cmLocalGenerator* LocalGenerator;
-    bool Relative;
-};
+class cmListFileBacktrace: public std::vector<cmListFileContext> {};
 
 struct cmListFile
 {

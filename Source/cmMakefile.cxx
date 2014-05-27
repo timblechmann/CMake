@@ -318,7 +318,6 @@ void cmMakefile::IssueMessage(cmake::MessageType t,
       this->CallStack.back().Status->SetNestedError(true);
       }
     this->GetBacktrace(backtrace);
-    backtrace.MakeRelative();
     }
   else
     {
@@ -336,12 +335,12 @@ void cmMakefile::IssueMessage(cmake::MessageType t,
       lfc.FilePath = this->ListFileStack.back();
       }
     lfc.Line = 0;
-    backtrace.push_back(lfc);
     if(!this->GetCMakeInstance()->GetIsInTryCompile())
       {
-      backtrace.SetLocalGenerator(this->LocalGenerator);
-      backtrace.MakeRelative();
+      lfc.FilePath = this->LocalGenerator->Convert(lfc.FilePath,
+                                                   cmLocalGenerator::HOME);
       }
+    backtrace.push_back(lfc);
     }
 
   // Issue the message.
@@ -355,11 +354,13 @@ bool cmMakefile::GetBacktrace(cmListFileBacktrace& backtrace) const
     {
     return false;
     }
-  backtrace.SetLocalGenerator(this->LocalGenerator);
   for(CallStackType::const_reverse_iterator i = this->CallStack.rbegin();
       i != this->CallStack.rend(); ++i)
     {
-    backtrace.push_back(*i->Context);
+    cmListFileContext lfc = *(*i).Context;
+    lfc.FilePath = this->LocalGenerator->Convert(lfc.FilePath,
+                                                 cmLocalGenerator::HOME);
+    backtrace.push_back(lfc);
     }
   return true;
 }
@@ -1948,7 +1949,6 @@ void cmMakefile::CheckForUnused(const char* reason,
       {
       cmOStringStream msg;
       msg << "unused variable (" << reason << ") \'" << name << "\'";
-      bt.MakeRelative();
       this->GetCMakeInstance()->IssueMessage(cmake::AUTHOR_WARNING,
                                              msg.str(),
                                              bt);

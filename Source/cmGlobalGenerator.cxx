@@ -85,7 +85,8 @@ bool cmGlobalGenerator::SetGeneratorToolset(std::string const& ts)
     "does not support toolset specification, but toolset\n"
     "  " << ts << "\n"
     "was specified.";
-  this->CMakeInstance->IssueMessage(cmake::FATAL_ERROR, e.str());
+  this->CMakeInstance->IssueMessage(cmake::FATAL_ERROR, e.str(),
+                                    cmListFileBacktrace());
   return false;
 }
 
@@ -1284,7 +1285,8 @@ void cmGlobalGenerator::Generate()
         && !cmSystemTools::GetErrorOccuredFlag())
       {
       this->GetCMakeInstance()
-          ->IssueMessage(cmake::FATAL_ERROR, "Could not write export file.");
+          ->IssueMessage(cmake::FATAL_ERROR, "Could not write export file.",
+                        cmListFileBacktrace());
       return;
       }
     }
@@ -1313,7 +1315,8 @@ void cmGlobalGenerator::Generate()
       {
       w << " " << *iter << "\n";
       }
-    this->GetCMakeInstance()->IssueMessage(cmake::AUTHOR_WARNING, w.str());
+    this->GetCMakeInstance()->IssueMessage(cmake::AUTHOR_WARNING, w.str(),
+                                           cmListFileBacktrace());
     }
 
   this->CMakeInstance->UpdateProgress("Generating done", -1);
@@ -1513,7 +1516,8 @@ cmGlobalGenerator::GetGeneratorTarget(cmTarget const* t) const
   if(ti == this->GeneratorTargets.end())
     {
     this->CMakeInstance->IssueMessage(
-      cmake::INTERNAL_ERROR, "Missing cmGeneratorTarget instance!");
+      cmake::INTERNAL_ERROR, "Missing cmGeneratorTarget instance!",
+      cmListFileBacktrace());
     return 0;
     }
   return ti->second;

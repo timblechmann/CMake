@@ -22,11 +22,6 @@ class cmTarget;
 //----------------------------------------------------------------------------
 struct cmGeneratorExpressionContext
 {
-  cmGeneratorExpressionContext()
-    : Backtrace(NULL)
-  {
-  }
-
   cmListFileBacktrace Backtrace;
   std::set<cmTarget*> DependTargets;
   std::set<cmTarget const*> AllTargets;

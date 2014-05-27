@@ -137,7 +137,8 @@ void cmMakefileTargetGenerator::WriteTargetBuildRules()
      this->Makefile->GetProperty
      ("ADDITIONAL_MAKE_CLEAN_FILES"))
     {
-    cmGeneratorExpression ge;
+    cmListFileBacktrace lfbt;
+    cmGeneratorExpression ge(lfbt);
     cmsys::auto_ptr<cmCompiledGeneratorExpression> cge =
                                             ge.Parse(additional_clean_files);
 

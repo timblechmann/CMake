@@ -70,7 +70,8 @@ bool cmTargetIncludeDirectoriesCommand
 ::HandleDirectContent(cmTarget *tgt, const std::vector<std::string> &content,
                       bool prepend, bool system)
 {
-  cmListFileBacktrace lfbt = this->Makefile->GetBacktrace();
+  cmListFileBacktrace lfbt;
+  this->Makefile->GetBacktrace(lfbt);
   cmValueWithOrigin entry(this->Join(content), lfbt);
   tgt->InsertInclude(entry, prepend);
   if (system)

@@ -137,7 +137,7 @@ char* cmCommandArgumentParserHelper::ExpandVariable(const char* var)
                                      this->Makefile->GetHomeOutputDirectory()))
         {
         cmOStringStream msg;
-        cmListFileBacktrace bt(this->Makefile->GetLocalGenerator());
+        cmListFileBacktrace bt;
         cmListFileContext lfc;
         lfc.FilePath = this->FileName;
         lfc.Line = this->FileLine;

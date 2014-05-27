@@ -24,25 +24,6 @@ cmGeneratorExpressionDAGChecker::cmGeneratorExpressionDAGChecker(
   : Parent(parent), Target(target), Property(property),
     Content(content), Backtrace(backtrace), TransitivePropertiesOnly(false)
 {
-  Initialize();
-}
-
-//----------------------------------------------------------------------------
-cmGeneratorExpressionDAGChecker::cmGeneratorExpressionDAGChecker(
-                const std::string &target,
-                const std::string &property,
-                const GeneratorExpressionContent *content,
-                cmGeneratorExpressionDAGChecker *parent)
-  : Parent(parent), Target(target), Property(property),
-    Content(content), Backtrace(NULL), TransitivePropertiesOnly(false)
-{
-  Initialize();
-}
-
-//----------------------------------------------------------------------------
-void
-cmGeneratorExpressionDAGChecker::Initialize()
-{
   const cmGeneratorExpressionDAGChecker *top = this;
   const cmGeneratorExpressionDAGChecker *p = this->Parent;
   while (p)
@@ -62,12 +43,11 @@ cmGeneratorExpressionDAGChecker::Initialize()
 #undef TEST_TRANSITIVE_PROPERTY_METHOD
     {
     std::map<std::string, std::set<std::string> >::const_iterator it
-                                              = top->Seen.find(this->Target);
+                                                    = top->Seen.find(target);
     if (it != top->Seen.end())
       {
       const std::set<std::string> &propSet = it->second;
-      const std::set<std::string>::const_iterator i
-          = propSet.find(this->Property);
+      const std::set<std::string>::const_iterator i = propSet.find(property);
       if (i != propSet.end())
         {
         this->CheckResult = ALREADY_SEEN;
@@ -75,7 +55,7 @@ cmGeneratorExpressionDAGChecker::Initialize()
         }
       }
     const_cast<cmGeneratorExpressionDAGChecker *>(top)
-      ->Seen[this->Target].insert(this->Property);
+                                            ->Seen[target].insert(property);
     }
 }
 

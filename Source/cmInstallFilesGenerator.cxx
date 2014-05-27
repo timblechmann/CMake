@@ -12,7 +12,6 @@
 #include "cmInstallFilesGenerator.h"
 
 #include "cmGeneratorExpression.h"
-#include "cmMakefile.h"
 #include "cmSystemTools.h"
 
 //----------------------------------------------------------------------------
@@ -85,7 +84,8 @@ void cmInstallFilesGenerator::GenerateScriptForConfig(std::ostream& os,
                                                     Indent const& indent)
 {
   std::vector<std::string> files;
-  cmGeneratorExpression ge;
+  cmListFileBacktrace lfbt;
+  cmGeneratorExpression ge(lfbt);
   for(std::vector<std::string>::const_iterator i = this->Files.begin();
       i != this->Files.end(); ++i)
     {

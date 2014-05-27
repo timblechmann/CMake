@@ -17,7 +17,6 @@
 
 //----------------------------------------------------------------------------
 cmCustomCommand::cmCustomCommand()
-  : Backtrace(NULL)
 {
   this->HaveComment = false;
   this->EscapeOldStyle = true;
@@ -34,7 +33,7 @@ cmCustomCommand::cmCustomCommand(const cmCustomCommand& r):
   WorkingDirectory(r.WorkingDirectory),
   EscapeAllowMakeVars(r.EscapeAllowMakeVars),
   EscapeOldStyle(r.EscapeOldStyle),
-  Backtrace(r.Backtrace)
+  Backtrace(new cmListFileBacktrace(*r.Backtrace))
 {
 }
 
@@ -55,7 +54,11 @@ cmCustomCommand& cmCustomCommand::operator=(cmCustomCommand const& r)
   this->EscapeAllowMakeVars = r.EscapeAllowMakeVars;
   this->EscapeOldStyle = r.EscapeOldStyle;
   this->ImplicitDepends = r.ImplicitDepends;
-  this->Backtrace = r.Backtrace;
+
+  cmsys::auto_ptr<cmListFileBacktrace>
+    newBacktrace(new cmListFileBacktrace(*r.Backtrace));
+  delete this->Backtrace;
+  this->Backtrace = newBacktrace.release();
 
   return *this;
 }
@@ -75,19 +78,20 @@ cmCustomCommand::cmCustomCommand(cmMakefile const* mf,
   WorkingDirectory(workingDirectory?workingDirectory:""),
   EscapeAllowMakeVars(false),
   EscapeOldStyle(true),
-  Backtrace(NULL)
+  Backtrace(new cmListFileBacktrace)
 {
   this->EscapeOldStyle = true;
   this->EscapeAllowMakeVars = false;
   if(mf)
     {
-    this->Backtrace = mf->GetBacktrace();
+    mf->GetBacktrace(*this->Backtrace);
     }
 }
 
 //----------------------------------------------------------------------------
 cmCustomCommand::~cmCustomCommand()
 {
+  delete this->Backtrace;
 }
 
 //----------------------------------------------------------------------------
@@ -162,7 +166,7 @@ void cmCustomCommand::SetEscapeAllowMakeVars(bool b)
 //----------------------------------------------------------------------------
 cmListFileBacktrace const& cmCustomCommand::GetBacktrace() const
 {
-  return this->Backtrace;
+  return *this->Backtrace;
 }
 
 //----------------------------------------------------------------------------

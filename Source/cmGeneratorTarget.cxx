@@ -259,10 +259,12 @@ static void handleSystemIncludesDep(cmMakefile *mf, cmTarget* depTgt,
                                   std::vector<std::string>& result,
                                   bool excludeImported)
 {
+  cmListFileBacktrace lfbt;
+
   if (const char* dirs =
           depTgt->GetProperty("INTERFACE_SYSTEM_INCLUDE_DIRECTORIES"))
     {
-    cmGeneratorExpression ge;
+    cmGeneratorExpression ge(lfbt);
     cmSystemTools::ExpandListArgument(ge.Parse(dirs)
                                       ->Evaluate(mf,
                                       config, false, headTarget,
@@ -276,7 +278,7 @@ static void handleSystemIncludesDep(cmMakefile *mf, cmTarget* depTgt,
   if (const char* dirs =
                 depTgt->GetProperty("INTERFACE_INCLUDE_DIRECTORIES"))
     {
-    cmGeneratorExpression ge;
+    cmGeneratorExpression ge(lfbt);
     cmSystemTools::ExpandListArgument(ge.Parse(dirs)
                                       ->Evaluate(mf,
                                       config, false, headTarget,
@@ -455,7 +457,8 @@ bool cmGeneratorTarget::IsSystemIncludeDirectory(const std::string& dir,
       return false;
       }
 
-    cmGeneratorExpressionDAGChecker dagChecker(
+    cmListFileBacktrace lfbt;
+    cmGeneratorExpressionDAGChecker dagChecker(lfbt,
                                         this->GetName(),
                                         "SYSTEM_INCLUDE_DIRECTORIES", 0, 0);
 
@@ -467,7 +470,7 @@ bool cmGeneratorTarget::IsSystemIncludeDirectory(const std::string& dir,
         it = this->Target->GetSystemIncludeDirectories().begin();
         it != this->Target->GetSystemIncludeDirectories().end(); ++it)
       {
-      cmGeneratorExpression ge;
+      cmGeneratorExpression ge(lfbt);
       cmSystemTools::ExpandListArgument(ge.Parse(*it)
                                           ->Evaluate(this->Makefile,
                                           config, false, this->Target,
@@ -805,7 +808,7 @@ cmTargetTraceDependencies
 {
   // Transform command names that reference targets built in this
   // project to corresponding target-level dependencies.
-  cmGeneratorExpression ge(&cc.GetBacktrace());
+  cmGeneratorExpression ge(cc.GetBacktrace());
 
   // Add target-level dependencies referenced by generator expressions.
   std::set<cmTarget*> targets;

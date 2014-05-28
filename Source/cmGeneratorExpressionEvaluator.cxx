@@ -1460,8 +1460,8 @@ static const struct TargetPolicyNode : public cmGeneratorExpressionNode
     if (!context->HeadTarget)
       {
       reportError(context, content->GetOriginalExpression(),
-          "$<TARGET_POLICY:prop> may only be used with binary targets.  It may "
-          "not be used with add_custom_command or add_custom_target.");
+          "$<TARGET_POLICY:prop> may only be used with binary targets.  It "
+          "may not be used with add_custom_command or add_custom_target.");
       return std::string();
       }
 

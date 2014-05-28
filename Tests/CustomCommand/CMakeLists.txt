@@ -135,10 +135,10 @@ add_dependencies(doc3Post TDocument)
 
 ################################################################
 #
-#  Test using a multistep generated file with collapsible path
+#  Test using a multistep generated file
 #
 ################################################################
-add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}//./foo.pre
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/foo.pre
   DEPENDS ${PROJECT_SOURCE_DIR}/foo.in
           TDocument # Ensure doc1.h generates before this target
   COMMAND   ${CMAKE_COMMAND}

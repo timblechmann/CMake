@@ -162,10 +162,6 @@ bool cmAddCustomCommandCommand
             }
           filename += copy;
           cmSystemTools::ConvertToUnixSlashes(filename);
-          if (cmSystemTools::FileIsFullPath(filename.c_str()))
-            {
-            filename = cmSystemTools::CollapseFullPath(filename.c_str());
-            }
           break;
         case doing_source:
           // We do not want to convert the argument to SOURCE because
@@ -205,10 +201,6 @@ bool cmAddCustomCommandCommand
            // explicit dependency.
            std::string dep = copy;
            cmSystemTools::ConvertToUnixSlashes(dep);
-           if (cmSystemTools::FileIsFullPath(dep.c_str()))
-            {
-            dep = cmSystemTools::CollapseFullPath(dep.c_str());
-            }
            depends.push_back(dep);
 
            // Add the implicit dependency language and file.
@@ -230,11 +222,7 @@ bool cmAddCustomCommandCommand
            {
            std::string dep = copy;
            cmSystemTools::ConvertToUnixSlashes(dep);
-           if (cmSystemTools::FileIsFullPath(dep.c_str()))
-            {
-            dep = cmSystemTools::CollapseFullPath(dep.c_str());
-            }
-           depends.push_back( dep );
+           depends.push_back(dep);
            }
            break;
          case doing_outputs:

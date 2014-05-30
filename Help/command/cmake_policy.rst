@@ -76,6 +76,3 @@ use the pre-record policies when they are invoked.  If the function or
 macro implementation sets policies, the changes automatically
 propagate up through callers until they reach the closest nested
 policy stack entry.
-
-Calling cmake_minimum_required() resets the policy stack
-to the specified version.

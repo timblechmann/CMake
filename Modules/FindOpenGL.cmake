@@ -196,7 +196,7 @@ if(OPENGL_FOUND)
   if(NOT TARGET OpenGL::GL)
     add_library(OpenGL::GL UNKNOWN IMPORTED)
     set_target_properties(OpenGL::GL PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES ${OPENGL_INCLUDE_DIR})
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENGL_INCLUDE_DIR}")
     if(OPENGL_gl_LIBRARY MATCHES "/([^/]+)\\.framework$")
       set_target_properties(OpenGL::GL PROPERTIES
         IMPORTED_LOCATION "${OPENGL_gl_LIBRARY}/${CMAKE_MATCH_1}")

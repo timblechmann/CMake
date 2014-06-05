@@ -133,15 +133,17 @@
 # ``static_assert``, or ignored if using the backward compatibility
 # implementation.
 #
-# ====================== ================================ ===================
-#         Feature                    Define                     Symbol
-# ====================== ================================ ===================
-# ``cxx_alignas``         ``<PREFIX>_ALIGNAS``             ``alignas``
-# ``cxx_alignof``         ``<PREFIX>_ALIGNOF``             ``alignof``
-# ``cxx_nullptr``         ``<PREFIX>_NULLPTR``             ``nullptr``
-# ``cxx_static_assert``   ``<PREFIX>_STATIC_ASSERT``       ``static_assert``
-# ``cxx_static_assert``   ``<PREFIX>_STATIC_ASSERT_MSG``   ``static_assert``
-# ====================== ================================ ===================
+# ============================= ================================ =====================
+#           Feature                          Define                     Symbol
+# ============================= ================================ =====================
+# ``cxx_alignas``                ``<PREFIX>_ALIGNAS``             ``alignas``
+# ``cxx_alignof``                ``<PREFIX>_ALIGNOF``             ``alignof``
+# ``cxx_nullptr``                ``<PREFIX>_NULLPTR``             ``nullptr``
+# ``cxx_static_assert``          ``<PREFIX>_STATIC_ASSERT``       ``static_assert``
+# ``cxx_static_assert``          ``<PREFIX>_STATIC_ASSERT_MSG``   ``static_assert``
+# ``cxx_attribute_deprecated``   ``<PREFIX>_DEPRECATED``          ``[[deprecated]]``
+# ``cxx_attribute_deprecated``   ``<PREFIX>_DEPRECATED_MSG``      ``[[deprecated]]``
+# ============================= ================================ =====================
 
 
 #=============================================================================
@@ -414,6 +416,27 @@ function(write_compiler_detection_header
 #    define ${def_value} nullptr
 #  else
 #    define ${def_value} static_cast<void*>(0)
+#  endif
+\n")
+      endif()
+      if (feature STREQUAL cxx_attribute_deprecated)
+        set(def_name ${prefix_arg}_${feature_PP})
+        set(def_value "${prefix_arg}_DEPRECATED")
+        set(file_content "${file_content}
+#  ifndef ${def_value}
+#    if ${def_name}
+#      define ${def_value} [[deprecated]]
+#      define ${def_value}_MSG(MSG) [[deprecated(MSG)]]
+#    elif defined(__GNUC__) || defined(__clang__)
+#      define ${def_value} __attribute__((__deprecated__))
+#      define ${def_value}_MSG(MSG) __attribute__((__deprecated__(MSG)))
+#    elif defined(_MSC_VER)
+#      define ${def_value} __declspec(deprecated)
+#      define ${def_value}_MSG(MSG) __declspec(deprecated(MSG))
+#    else
+#      define ${def_value}
+#      define ${def_value}_MSG(MSG)
+#    endif
 #  endif
 \n")
       endif()

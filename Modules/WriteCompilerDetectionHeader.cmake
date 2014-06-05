@@ -166,6 +166,8 @@ function(_load_compiler_variables CompilerId lang)
   foreach(feature ${ARGN})
     set(_cmake_feature_test_${CompilerId}_${feature} ${_cmake_feature_test_${feature}} PARENT_SCOPE)
   endforeach()
+  include("${CMAKE_ROOT}/Modules/Compiler/${CompilerId}-DetermineCompiler.cmake" OPTIONAL)
+  set(_compiler_id_version_compute_${CompilerId} ${_compiler_id_version_compute} PARENT_SCOPE)
 endfunction()
 
 function(write_compiler_detection_header
@@ -197,8 +199,13 @@ function(write_compiler_detection_header
   if(NOT _WCD_VERSION)
     set(_WCD_VERSION ${CMAKE_MINIMUM_REQUIRED_VERSION})
   endif()
-  if (_WCD_VERSION VERSION_LESS 3.1.0) # Version which introduced this function
-    message(FATAL_ERROR "VERSION parameter too low.")
+  set(_min_version 3.1.0) # Version which introduced this function
+  if (_WCD_VERSION VERSION_LESS _min_version)
+    set(err "VERSION compatibility for write_compiler_detection_header is set to ${_WCD_VERSION}, which is too low.")
+    set(err "${err}  It must be set to at least ${_min_version}.  ")
+    set(err "${err}  Either set the VERSION parameter to the write_compiler_detection_header function, or update")
+    set(err "${err} your minimum required CMake version with the cmake_minimum_required command.")
+    message(FATAL_ERROR "${err}")
   endif()
 
   set(compilers
@@ -266,6 +273,14 @@ function(write_compiler_detection_header
 #    if !(${_cmake_oldestSupported_${compiler}})
 #      error Unsupported compiler version
 #    endif\n")
+
+      set(PREFIX ${prefix_arg}_)
+      set(MACRO_DEC)
+      set(MACRO_HEX)
+      string(CONFIGURE "${_compiler_id_version_compute_${compiler}}" VERSION_BLOCK @ONLY)
+      set(file_content "${file_content}${VERSION_BLOCK}\n")
+      set(PREFIX)
+
       set(pp_if "elif")
       foreach(feature ${${_lang}_features})
         string(TOUPPER ${feature} feature_upper)

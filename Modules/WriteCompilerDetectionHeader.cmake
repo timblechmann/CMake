@@ -166,6 +166,8 @@ function(_load_compiler_variables CompilerId lang)
   foreach(feature ${ARGN})
     set(_cmake_feature_test_${CompilerId}_${feature} ${_cmake_feature_test_${feature}} PARENT_SCOPE)
   endforeach()
+  include("${CMAKE_ROOT}/Modules/Compiler/${CompilerId}-DetermineCompiler.cmake" OPTIONAL)
+  set(_compiler_id_version_compute_${CompilerId} ${_compiler_id_version_compute} PARENT_SCOPE)
 endfunction()
 
 function(write_compiler_detection_header
@@ -271,6 +273,14 @@ function(write_compiler_detection_header
 #    if !(${_cmake_oldestSupported_${compiler}})
 #      error Unsupported compiler version
 #    endif\n")
+
+      set(PREFIX ${prefix_arg}_)
+      set(MACRO_DEC)
+      set(MACRO_HEX)
+      string(CONFIGURE "${_compiler_id_version_compute_${compiler}}" VERSION_BLOCK @ONLY)
+      set(file_content "${file_content}${VERSION_BLOCK}\n")
+      set(PREFIX)
+
       set(pp_if "elif")
       foreach(feature ${${_lang}_features})
         string(TOUPPER ${feature} feature_upper)

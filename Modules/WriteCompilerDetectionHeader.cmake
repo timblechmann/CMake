@@ -166,6 +166,8 @@ function(_load_compiler_variables CompilerId lang)
   foreach(feature ${ARGN})
     set(_cmake_feature_test_${CompilerId}_${feature} ${_cmake_feature_test_${feature}} PARENT_SCOPE)
   endforeach()
+  include("${CMAKE_ROOT}/Modules/Compiler/${CompilerId}-DetermineCompiler.cmake" OPTIONAL)
+  set(_compiler_id_version_compute_${CompilerId} ${_compiler_id_version_compute} PARENT_SCOPE)
 endfunction()
 
 function(write_compiler_detection_header
@@ -210,10 +212,19 @@ function(write_compiler_detection_header
     GNU
     Clang
   )
+
+  set(_hex_compilers ADSP Borland Embarcadero SunPro)
+
   foreach(_comp ${_WCD_COMPILERS})
     list(FIND compilers ${_comp} idx)
     if (idx EQUAL -1)
       message(FATAL_ERROR "Unsupported compiler ${_comp}.")
+    endif()
+    if (NOT _need_hex_conversion)
+      list(FIND _hex_compilers ${_comp} idx)
+      if (NOT idx EQUAL -1)
+        set(_need_hex_conversion TRUE)
+      endif()
     endif()
   endforeach()
 
@@ -226,6 +237,21 @@ function(write_compiler_detection_header
 
   if (_WCD_PROLOG)
     set(file_content "${file_content}\n${_WCD_PROLOG}\n")
+  endif()
+
+  if (_need_hex_conversion)
+    set(file_content "${file_content}
+#define ${prefix_arg}_DEC(X) (X)
+#define ${prefix_arg}_HEX(X) ( \\
+    ((X)>>28 & 0xF) * 10000000 + \\
+    ((X)>>24 & 0xF) *  1000000 + \\
+    ((X)>>20 & 0xF) *   100000 + \\
+    ((X)>>16 & 0xF) *    10000 + \\
+    ((X)>>12 & 0xF) *     1000 + \\
+    ((X)>>8  & 0xF) *      100 + \\
+    ((X)>>4  & 0xF) *       10 + \\
+    ((X)     & 0xF) \\
+    )\n")
   endif()
 
   foreach(feature ${_WCD_FEATURES})
@@ -271,6 +297,21 @@ function(write_compiler_detection_header
 #    if !(${_cmake_oldestSupported_${compiler}})
 #      error Unsupported compiler version
 #    endif\n")
+
+      set(PREFIX ${prefix_arg}_)
+      if (_need_hex_conversion)
+        set(MACRO_DEC ${prefix_arg}_DEC)
+        set(MACRO_HEX ${prefix_arg}_HEX)
+      else()
+        set(MACRO_DEC)
+        set(MACRO_HEX)
+      endif()
+      string(CONFIGURE "${_compiler_id_version_compute_${compiler}}" VERSION_BLOCK @ONLY)
+      set(file_content "${file_content}${VERSION_BLOCK}\n")
+      set(PREFIX)
+      set(MACRO_DEC)
+      set(MACRO_HEX)
+
       set(pp_if "elif")
       foreach(feature ${${_lang}_features})
         string(TOUPPER ${feature} feature_upper)

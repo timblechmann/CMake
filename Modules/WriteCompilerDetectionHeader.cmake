@@ -52,7 +52,15 @@
 # Feature Test Macros
 # ===================
 #
-# For each compiler, a preprocessor test of the compiler version is generated
+# For each compiler, a preprocessor macro is generated matching
+# ``<PREFIX>_COMPILER_IS_<compiler>`` which has the content either ``0``
+# or ``1``, depending on the compiler in use. Preprocessor macros for
+# compiler version components are generated matching
+# ``<PREFIX>_COMPILER_VERSION_MAJOR`` ``<PREFIX>_COMPILER_VERSION_MINOR``
+# and ``<PREFIX>_COMPILER_VERSION_PATCH`` containing decimal values
+# for the corresponding compiler version components, if defined.
+#
+# A preprocessor test is generated based on the compiler version
 # denoting whether each feature is enabled.  A preprocessor macro
 # matching ``<PREFIX>_COMPILER_<FEATURE>``, where ``<FEATURE>`` is the
 # upper-case ``<feature>`` name, is generated to contain the value

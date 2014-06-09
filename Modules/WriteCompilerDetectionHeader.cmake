@@ -135,7 +135,7 @@
 #
 # The ``cxx_attribute_deprecated`` feature provides a macro definition
 # ``<PREFIX>_DEPRECATED``, which expands to either the standard
-# ``[[deprecated]] attribute or a compiler-specific decorator such
+# ``[[deprecated]]`` attribute or a compiler-specific decorator such
 # as ``__attribute__((__deprecated__))`` used by GNU compilers.
 #
 # ============================= ================================ =====================

@@ -6146,7 +6146,6 @@ void processILibs(const std::string& config,
     if (emitted.insert(tgt).second)
       {
       tgts.push_back(tgt);
-      std::vector<std::string> ilibs;
       cmTarget::LinkInterface const* iface =
                           tgt->GetLinkInterfaceLibraries(config, headTarget);
       if (iface)

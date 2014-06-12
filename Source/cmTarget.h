@@ -44,11 +44,9 @@ class cmGeneratorTarget;
 class cmTargetTraceDependencies;
 
 struct cmTargetLinkInformationMap:
-  public std::map<std::pair<cmTarget const* , std::string>,
-                  cmComputeLinkInformation*>
+  public std::map<std::string, cmComputeLinkInformation*>
 {
-  typedef std::map<std::pair<cmTarget const* , std::string>,
-                   cmComputeLinkInformation*> derived;
+  typedef std::map<std::string, cmComputeLinkInformation*> derived;
   cmTargetLinkInformationMap() {}
   cmTargetLinkInformationMap(cmTargetLinkInformationMap const& r);
   ~cmTargetLinkInformationMap();
@@ -160,8 +158,7 @@ public:
   const LinkLibraryVectorType &GetOriginalLinkLibraries() const
     {return this->OriginalLinkLibraries;}
   void GetDirectLinkLibraries(const std::string& config,
-                              std::vector<std::string> &,
-                              cmTarget const* head) const;
+                              std::vector<std::string> &) const;
   void GetInterfaceLinkLibraries(const std::string& config,
                               std::vector<std::string> &,
                               cmTarget const* head) const;
@@ -296,12 +293,11 @@ public:
     // Needed only for OLD behavior of CMP0003.
     std::vector<std::string> WrongConfigLibraries;
   };
-  LinkImplementation const* GetLinkImplementation(const std::string& config,
-                                                  cmTarget const* head) const;
+  LinkImplementation const*
+    GetLinkImplementation(const std::string& config) const;
 
-  LinkImplementation const* GetLinkImplementationLibraries(
-                                                  const std::string& config,
-                                                  cmTarget const* head) const;
+  LinkImplementation const*
+    GetLinkImplementationLibraries(const std::string& config) const;
 
   /** Link information from the transitive closure of the link
       implementation and the interfaces of its dependencies.  */
@@ -313,8 +309,7 @@ public:
     // Languages whose runtime libraries must be linked.
     std::vector<std::string> Languages;
   };
-  LinkClosure const* GetLinkClosure(const std::string& config,
-                                    cmTarget const* head) const;
+  LinkClosure const* GetLinkClosure(const std::string& config) const;
 
   /** Strip off leading and trailing whitespace from an item named in
       the link dependencies of this target.  */
@@ -360,8 +355,7 @@ public:
   GetTargetVersion(bool soversion, int& major, int& minor, int& patch) const;
 
   ///! Return the preferred linker language for this target
-  std::string GetLinkerLanguage(const std::string& config = "",
-                                cmTarget const* head = 0) const;
+  std::string GetLinkerLanguage(const std::string& config = "") const;
 
   /** Get the full name of the target according to the settings in its
       makefile.  */
@@ -445,8 +439,8 @@ public:
     * install tree.  For example: "\@rpath/" or "\@loader_path/". */
   std::string GetInstallNameDirForInstallTree() const;
 
-  cmComputeLinkInformation* GetLinkInformation(const std::string& config,
-                                               cmTarget const* head = 0) const;
+  cmComputeLinkInformation*
+    GetLinkInformation(const std::string& config) const;
 
   // Get the properties
   cmPropertyMap &GetProperties() const { return this->Properties; }
@@ -757,14 +751,19 @@ private:
                                             cmTarget const* head,
                                             bool &exists) const;
 
+  void GetDirectLinkLibrariesInternal(const std::string& config,
+                                      std::vector<std::string>& libs,
+                                      cmTarget const* head) const;
+  LinkImplementation const*
+    GetLinkImplementationLibrariesInternal(const std::string& config,
+                                           cmTarget const* head) const;
   void ComputeLinkImplementation(const std::string& config,
                                  LinkImplementation& impl,
                                  cmTarget const* head) const;
   void ComputeLinkImplementationLanguages(const std::string& config,
                                           LinkImplementation& impl,
                                           cmTarget const* head) const;
-  void ComputeLinkClosure(const std::string& config, LinkClosure& lc,
-                          cmTarget const* head) const;
+  void ComputeLinkClosure(const std::string& config, LinkClosure& lc) const;
 
   std::string ProcessSourceItemCMP0049(const std::string& s);
 

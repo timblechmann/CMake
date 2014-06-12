@@ -392,8 +392,7 @@ void cmGlobalVisualStudio7Generator::WriteTargetConfigurations(
     else
       {
       const std::set<std::string>& configsPartOfDefaultBuild =
-        this->IsPartOfDefaultBuild(root->GetMakefile()->GetProjectName(),
-                                   target);
+        this->IsPartOfDefaultBuild(projectTargets, target);
       const char *vcprojName =
         target->GetProperty("GENERATOR_FILE_NAME");
       if (vcprojName)
@@ -981,8 +980,7 @@ cmGlobalVisualStudio7Generator
 
 std::set<std::string>
 cmGlobalVisualStudio7Generator::IsPartOfDefaultBuild(
-                                                    const std::string& project,
-                                                    cmTarget const* target)
+  OrderedTargetDependSet const& projectTargets, cmTarget const* target)
 {
   std::set<std::string> activeConfigs;
   // if it is a utilitiy target then only make it part of the
@@ -992,7 +990,7 @@ cmGlobalVisualStudio7Generator::IsPartOfDefaultBuild(
     {
     return activeConfigs;
     }
-  if(type == cmTarget::UTILITY && !this->IsDependedOn(project, target))
+  if(type == cmTarget::UTILITY && !this->IsDependedOn(projectTargets, target))
     {
     return activeConfigs;
     }
@@ -1008,6 +1006,24 @@ cmGlobalVisualStudio7Generator::IsPartOfDefaultBuild(
       }
     }
   return activeConfigs;
+}
+
+bool
+cmGlobalVisualStudio7Generator
+::IsDependedOn(OrderedTargetDependSet const& projectTargets,
+               cmTarget const* targetIn)
+{
+  for (OrderedTargetDependSet::const_iterator l = projectTargets.begin();
+       l != projectTargets.end(); ++l)
+    {
+    cmTarget const& target = **l;
+    TargetDependSet const& tgtdeps = this->GetTargetDirectDepends(target);
+    if(tgtdeps.count(targetIn))
+      {
+      return true;
+      }
+    }
+  return false;
 }
 
 //----------------------------------------------------------------------------

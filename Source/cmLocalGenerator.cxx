@@ -2229,7 +2229,10 @@ AddCompilerRequirementFlag(std::string &flags, cmTarget* target,
            "does not know the compile flags to use to enable it.";
       this->GetMakefile()->IssueMessage(cmake::FATAL_ERROR, e.str());
       }
-    this->AppendFlagEscape(flags, opt);
+    else
+      {
+      this->AppendFlagEscape(flags, opt);
+      }
     return;
     }
 

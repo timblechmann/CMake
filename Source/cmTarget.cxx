@@ -3688,10 +3688,16 @@ void cmTarget::ExpandLinkItems(std::string const& prop,
                                std::string const& value,
                                std::string const& config,
                                cmTarget const* headTarget,
+                               bool linking,
                                std::vector<cmLinkItem>& items) const
 {
   cmGeneratorExpression ge;
   cmGeneratorExpressionDAGChecker dagChecker(this->GetName(), prop, 0, 0);
+  if(!linking && this->GetType() == cmTarget::STATIC_LIBRARY &&
+     prop == "INTERFACE_LINK_LIBRARIES")
+    {
+    dagChecker.SetTransitivePropertiesOnly();
+    }
   std::vector<std::string> libs;
   cmSystemTools::ExpandListArgument(ge.Parse(value)->Evaluate(
                                       this->Makefile,
@@ -6135,7 +6141,7 @@ cmTarget::GetImportLinkInterface(const std::string& config,
     iface.Multiplicity = info->Multiplicity;
     cmSystemTools::ExpandListArgument(info->Languages, iface.Languages);
     this->ExpandLinkItems(info->LibrariesProp, info->Libraries, config,
-                          headTarget, iface.Libraries);
+                          headTarget, true, iface.Libraries);
     {
     std::vector<std::string> deps;
     cmSystemTools::ExpandListArgument(info->SharedDeps, deps);
@@ -6230,24 +6236,16 @@ void cmTarget::GetTransitivePropertyTargets(const std::string& config,
     }
 
   // The interface libraries have been explicitly set.
-  cmGeneratorExpression ge;
-  cmGeneratorExpressionDAGChecker dagChecker(this->GetName(),
-                                             linkIfaceProp, 0, 0);
-  dagChecker.SetTransitivePropertiesOnly();
-  std::vector<std::string> libs;
-  cmSystemTools::ExpandListArgument(ge.Parse(interfaceLibs)->Evaluate(
-                                      this->Makefile,
-                                      config,
-                                      false,
-                                      headTarget,
-                                      this, &dagChecker), libs);
+  std::vector<cmLinkItem> libs;
+  this->ExpandLinkItems(linkIfaceProp, interfaceLibs, config,
+                        headTarget, false, libs);
 
-  for(std::vector<std::string>::const_iterator it = libs.begin();
+  for(std::vector<cmLinkItem>::const_iterator it = libs.begin();
       it != libs.end(); ++it)
     {
-    if (cmTarget const* tgt = this->FindTargetToLink(*it))
+    if (it->Target)
       {
-      tgts.push_back(tgt);
+      tgts.push_back(it->Target);
       }
     }
 }
@@ -6341,7 +6339,7 @@ const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
     {
     // The interface libraries have been explicitly set.
     this->ExpandLinkItems(linkIfaceProp, explicitLibraries, config,
-                          headTarget, iface.Libraries);
+                          headTarget, true, iface.Libraries);
     }
   else if (this->PolicyStatusCMP0022 == cmPolicies::WARN
         || this->PolicyStatusCMP0022 == cmPolicies::OLD)
@@ -6364,7 +6362,7 @@ const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
       if(const char* newExplicitLibraries = this->GetProperty(newProp))
         {
         this->ExpandLinkItems(newProp, newExplicitLibraries, config,
-                              headTarget, ifaceLibs);
+                              headTarget, true, ifaceLibs);
         }
       if (ifaceLibs != impl->Libraries)
         {

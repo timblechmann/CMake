@@ -280,7 +280,8 @@ public:
   LinkInterface const* GetLinkInterface(const std::string& config,
                                         cmTarget const* headTarget) const;
   LinkInterface const* GetLinkInterfaceLibraries(const std::string& config,
-                                        cmTarget const* headTarget) const;
+                                        cmTarget const* headTarget,
+                                        bool linking) const;
   void GetTransitivePropertyTargets(const std::string& config,
                                     cmTarget const* headTarget,
                                     std::vector<cmTarget const*> &libs) const;
@@ -757,11 +758,12 @@ private:
 
   LinkInterface const*
     GetImportLinkInterface(const std::string& config,
-                           cmTarget const* head) const;
+                           cmTarget const* head, bool linking) const;
 
   const char* ComputeLinkInterfaceLibraries(const std::string& config,
                                             LinkInterface& iface,
                                             cmTarget const* head,
+                                            bool linking,
                                             bool &exists) const;
 
   LinkImplementation const*

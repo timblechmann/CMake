@@ -159,9 +159,6 @@ public:
     {return this->OriginalLinkLibraries;}
   void GetDirectLinkLibraries(const std::string& config,
                               std::vector<std::string> &) const;
-  void GetInterfaceLinkLibraries(const std::string& config,
-                              std::vector<std::string> &,
-                              cmTarget const* head) const;
 
   /** Compute the link type to use for the given configuration.  */
   LinkLibraryType ComputeLinkType(const std::string& config) const;

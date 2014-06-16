@@ -3483,9 +3483,9 @@ public:
     Makefile(target->GetMakefile()), Target(target)
   { this->Visited.insert(target); }
 
-  void Visit(const std::string& name)
+  void Visit(cmTarget const* from, const std::string& name)
     {
-    cmTarget *target = this->Makefile->FindTargetToUse(name);
+    cmTarget const *target = from->FindTargetToLink(name);
 
     if(!target)
       {
@@ -3544,7 +3544,7 @@ public:
     for(std::vector<std::string>::const_iterator
           li = iface->Libraries.begin(); li != iface->Libraries.end(); ++li)
       {
-      this->Visit(*li);
+      this->Visit(target, *li);
       }
     }
 private:
@@ -3650,7 +3650,7 @@ void cmTarget::ComputeLinkClosure(const std::string& config,
   for(std::vector<std::string>::const_iterator li = impl->Libraries.begin();
       li != impl->Libraries.end(); ++li)
     {
-    cll.Visit(*li);
+    cll.Visit(this, *li);
     }
 
   // Store the transitive closure of languages.
@@ -6117,12 +6117,12 @@ cmTarget::GetLinkInterfaceLibraries(const std::string& config,
 //----------------------------------------------------------------------------
 void processILibs(const std::string& config,
                   cmTarget const* headTarget,
+                  cmTarget const* curTarget,
                   std::string const& name,
                   std::vector<cmTarget const*>& tgts,
                   std::set<cmTarget const*>& emitted)
 {
-  if (cmTarget* tgt = headTarget->GetMakefile()
-                                ->FindTargetToUse(name))
+  if (cmTarget const* tgt = curTarget->FindTargetToLink(name))
     {
     if (emitted.insert(tgt).second)
       {
@@ -6135,7 +6135,7 @@ void processILibs(const std::string& config,
             it = iface->Libraries.begin();
             it != iface->Libraries.end(); ++it)
           {
-          processILibs(config, headTarget, *it, tgts, emitted);
+          processILibs(config, headTarget, tgt, *it, tgts, emitted);
           }
         }
       }
@@ -6159,7 +6159,7 @@ cmTarget::GetLinkImplementationClosure(const std::string& config) const
     for(std::vector<std::string>::const_iterator it = impl->Libraries.begin();
         it != impl->Libraries.end(); ++it)
       {
-      processILibs(config, this, *it, tgts , emitted);
+      processILibs(config, this, this, *it, tgts , emitted);
       }
     }
   return tgts;
@@ -6183,8 +6183,7 @@ void cmTarget::GetTransitivePropertyTargets(const std::string& config,
     for(std::vector<std::string>::const_iterator it = iface->Libraries.begin();
         it != iface->Libraries.end(); ++it)
       {
-      if (cmTarget const* tgt = headTarget->GetMakefile()
-                                    ->FindTargetToUse(*it))
+      if (cmTarget const* tgt = this->FindTargetToLink(*it))
         {
         tgts.push_back(tgt);
         }
@@ -6216,8 +6215,7 @@ void cmTarget::GetTransitivePropertyTargets(const std::string& config,
   for(std::vector<std::string>::const_iterator it = libs.begin();
       it != libs.end(); ++it)
     {
-    if (cmTarget* tgt = headTarget->GetMakefile()
-                                  ->FindTargetToUse(*it))
+    if (cmTarget const* tgt = this->FindTargetToLink(*it))
       {
       tgts.push_back(tgt);
       }

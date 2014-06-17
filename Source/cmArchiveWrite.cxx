@@ -237,8 +237,8 @@ bool cmArchiveWrite::AddFile(const char* file,
     std::cout << dest << "\n";
     }
   Entry e;
-  archive_entry_copy_sourcepath(e, file);
-  archive_entry_set_pathname(e, dest.c_str());
+  archive_entry_copy_sourcepath_w(e, cmsys::Encoding::ToWide(file).c_str());
+  archive_entry_copy_pathname_w(e, cmsys::Encoding::ToWide(file).c_str());
   if(archive_read_disk_entry_from_file(this->Disk, e, -1, 0) != ARCHIVE_OK)
     {
     this->Error = "archive_read_disk_entry_from_file: ";

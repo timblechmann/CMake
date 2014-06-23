@@ -1581,8 +1581,12 @@ namespace{
     }
   strftime(tmp, sizeof(tmp), fmt, localtime(&tim));
   fprintf(out, " %s ", tmp);
+#if cmsys_STL_HAS_WSTRING
   fprintf(out, "%s",
     cmsys::Encoding::ToNarrow(archive_entry_pathname_w(entry)).c_str());
+#else
+  fprintf(out, "%s", archive_entry_pathname(entry));
+#endif
 
   /* Extra information for links. */
   if (archive_entry_hardlink(entry)) /* Hard link */
@@ -1637,13 +1641,17 @@ long copy_data(struct archive *ar, struct archive *aw)
 bool extract_tar(const char* outFileName, bool verbose,
                  bool extract)
 {
-  std::wstring wOutFileName = cmsys::Encoding::ToWide(outFileName);
   struct archive* a = archive_read_new();
   struct archive *ext = archive_write_disk_new();
   archive_read_support_compression_all(a);
   archive_read_support_format_all(a);
   struct archive_entry *entry;
+#if cmsys_STL_HAS_WSTRING
+  std::wstring wOutFileName = cmsys::Encoding::ToWide(outFileName);
   int r = archive_read_open_filename_w(a, wOutFileName.c_str(), 10240);
+#else
+  int r = archive_read_open_file(a, outFileName, 10240);
+#endif
   if(r)
     {
     cmSystemTools::Error("Problem with archive_read_open_file(): ",
@@ -1668,8 +1676,12 @@ bool extract_tar(const char* outFileName, bool verbose,
       if(extract)
         {
         cmSystemTools::Stdout("x ");
+#if cmsys_STL_HAS_WSTRING
         cmSystemTools::Stdout(
           cmsys::Encoding::ToNarrow(archive_entry_pathname_w(entry)).c_str());
+#else
+        cmSystemTools::Stdout(archive_entry_pathname(entry));
+#endif
         }
       else
         {
@@ -1679,8 +1691,12 @@ bool extract_tar(const char* outFileName, bool verbose,
       }
     else if(!extract)
       {
+#if cmsys_STL_HAS_WSTRING
       cmSystemTools::Stdout(
         cmsys::Encoding::ToNarrow(archive_entry_pathname_w(entry)).c_str());
+#else
+        cmSystemTools::Stdout(archive_entry_pathname(entry));
+#endif
       cmSystemTools::Stdout("\n");
       }
     if(extract)
@@ -1710,7 +1726,11 @@ bool extract_tar(const char* outFileName, bool verbose,
       else if(const char* linktext = archive_entry_symlink(entry))
         {
         std::cerr << "cmake -E tar: warning: skipping symbolic link \""
+#if cmsys_STL_HAS_WSTRING
                  << cmsys::Encoding::ToNarrow(archive_entry_pathname_w(entry))
+#else
+                 << archive_entry_pathname(entry)
+#endif
                  << "\" -> \""
                  << linktext << "\"." << std::endl;
         }
@@ -1720,7 +1740,11 @@ bool extract_tar(const char* outFileName, bool verbose,
         cmSystemTools::Error("Problem with archive_write_header(): ",
                              archive_error_string(ext));
         cmSystemTools::Error("Current file: ",
+#if cmsys_STL_HAS_WSTRING
           cmsys::Encoding::ToNarrow(archive_entry_pathname_w(entry)).c_str());
+#else
+          archive_entry_pathname(entry));
+#endif
         break;
         }
       }

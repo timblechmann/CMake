@@ -53,24 +53,6 @@
 #   Boost_<C>_LIBRARY_DEBUG   - Component <C> library debug variant
 #   Boost_<C>_LIBRARY_RELEASE - Component <C> library release variant
 #
-# In addition to the above variables this module creates the following
-# :prop_tgt:`IMPORTED` targets::
-#
-#   Boost::boost                  - interface target containing the include
-#                                   directory
-#   Boost::<C>                    - shared or static library target for a
-#                                   component (<C> is lower-case)
-#   Boost::diagnostic_definitions - interface target to enable diagnostic
-#                                   information about Boost's automatic linking
-#                                   during compilation
-#
-# Component targets never depend on each even though they might
-# require each other. It is important to note that the imported
-# targets behave differently than variables created by this module:
-# multiple calls to find_package(Boost) in the same directory or
-# sub-directories with different options (e.g. static or shared) will
-# not override the values of the targets created by the first call.
-#
 # Users may set these hints or results as cache entries.  Projects
 # should not read these entries directly but instead use the above
 # result variables.  Note that some hint names start in upper-case
@@ -542,13 +524,6 @@ if(Boost_DEBUG)
                  "Boost_NO_SYSTEM_PATHS = ${Boost_NO_SYSTEM_PATHS}")
 endif()
 
-# Supply Boost_LIB_DIAGNOSTIC_DEFINITIONS as a convenience target. It
-# will only contain any interface definitions on WIN32, but is created
-# on all platforms to keep end user code free from platform dependent
-# code.
-if(NOT TARGET Boost::diagnostic_definitions)
-  add_library(Boost::diagnostic_definitions INTERFACE IMPORTED)
-endif()
 if(WIN32)
   # In windows, automatic linking is performed, so you do not have
   # to specify the libraries.  If you are linking to a dynamic
@@ -568,8 +543,6 @@ if(WIN32)
   # code to emit a #pragma message each time a library is selected
   # for linking.
   set(Boost_LIB_DIAGNOSTIC_DEFINITIONS "-DBOOST_LIB_DIAGNOSTIC")
-  set_target_properties(Boost::diagnostic_definitions PROPERTIES
-    INTERFACE_COMPILE_DEFINITIONS "BOOST_LIB_DIAGNOSTIC")
 endif()
 
 _Boost_CHECK_SPELLING(Boost_ROOT)
@@ -1182,36 +1155,11 @@ else()
 endif()
 
 # ------------------------------------------------------------------------
-#  Notification to end user about what was found and creation of targets.
+#  Notification to end user about what was found
 # ------------------------------------------------------------------------
 
 set(Boost_LIBRARIES "")
 if(Boost_FOUND)
-  if(NOT TARGET Boost::boost)
-    add_library(Boost::boost INTERFACE IMPORTED)
-    set_target_properties(Boost::boost PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIR}")
-  endif()
-
-  foreach(COMPONENT ${Boost_FIND_COMPONENTS})
-    string(TOUPPER ${COMPONENT} UPPERCOMPONENT)
-
-    if(NOT TARGET Boost::${COMPONENT})
-      if(Boost_USE_STATIC_LIBS)
-        add_library(Boost::${COMPONENT} STATIC IMPORTED)
-      else()
-        # Even if Boost_USE_STATIC_LIBS is OFF, we might have static
-        # libraries as a result.
-        add_library(Boost::${COMPONENT} UNKNOWN IMPORTED)
-      endif()
-
-      set_target_properties(Boost::${COMPONENT} PROPERTIES
-        IMPORTED_LOCATION "${Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE}"
-        IMPORTED_LOCATION_RELEASE "${Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE}"
-        IMPORTED_LOCATION_DEBUG "${Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG}")
-    endif()
-  endforeach()
-
   if(NOT Boost_FIND_QUIETLY)
     message(STATUS "Boost version: ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
     if(Boost_FIND_COMPONENTS)

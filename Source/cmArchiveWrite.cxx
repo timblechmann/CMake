@@ -239,10 +239,10 @@ bool cmArchiveWrite::AddFile(const char* file,
   Entry e;
 #if cmsys_STL_HAS_WSTRING
   archive_entry_copy_sourcepath_w(e, cmsys::Encoding::ToWide(file).c_str());
-  archive_entry_copy_pathname_w(e, cmsys::Encoding::ToWide(file).c_str());
+  archive_entry_copy_pathname_w(e, cmsys::Encoding::ToWide(dest).c_str());
 #else
   archive_entry_copy_sourcepath(e, file);
-  archive_entry_copy_pathname(e, file);
+  archive_entry_copy_pathname(e, dest.c_str());
 #endif
   if(archive_read_disk_entry_from_file(this->Disk, e, -1, 0) != ARCHIVE_OK)
     {

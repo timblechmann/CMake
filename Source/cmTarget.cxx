@@ -126,13 +126,13 @@ public:
   typedef std::map<TargetConfigPair, OptionalLinkInterface>
                                                           LinkInterfaceMapType;
   LinkInterfaceMapType LinkInterfaceMap;
-  LinkInterfaceMapType LinkInterfaceTransitiveOnlyMap;
+  LinkInterfaceMapType LinkInterfaceUsageRequirementsOnlyMap;
   bool PolicyWarnedCMP0022;
 
   typedef std::map<TargetConfigPair, cmTarget::LinkInterface>
                                                     ImportLinkInterfaceMapType;
   ImportLinkInterfaceMapType ImportLinkInterfaceMap;
-  ImportLinkInterfaceMapType ImportLinkInterfaceTransitiveOnlyMap;
+  ImportLinkInterfaceMapType ImportLinkInterfaceUsageRequirementsOnlyMap;
 
   typedef std::map<std::string, cmTarget::OutputInfo> OutputInfoMapType;
   OutputInfoMapType OutputInfoMap;
@@ -512,9 +512,9 @@ void cmTarget::ClearLinkMaps()
   this->LinkImplementationLanguageIsContextDependent = true;
   this->Internal->LinkImplMap.clear();
   this->Internal->LinkInterfaceMap.clear();
-  this->Internal->LinkInterfaceTransitiveOnlyMap.clear();
+  this->Internal->LinkInterfaceUsageRequirementsOnlyMap.clear();
   this->Internal->ImportLinkInterfaceMap.clear();
-  this->Internal->ImportLinkInterfaceTransitiveOnlyMap.clear();
+  this->Internal->ImportLinkInterfaceUsageRequirementsOnlyMap.clear();
   this->Internal->LinkClosureMap.clear();
   for (cmTargetLinkInformationMap::const_iterator it
       = this->LinkInformation.begin();
@@ -3692,13 +3692,12 @@ void cmTarget::ExpandLinkItems(std::string const& prop,
                                std::string const& value,
                                std::string const& config,
                                cmTarget const* headTarget,
-                               bool linking,
+                               bool usage_requirements_only,
                                std::vector<cmLinkItem>& items) const
 {
   cmGeneratorExpression ge;
   cmGeneratorExpressionDAGChecker dagChecker(this->GetName(), prop, 0, 0);
-  if(!linking && this->GetType() == cmTarget::STATIC_LIBRARY &&
-     prop == "INTERFACE_LINK_LIBRARIES")
+  if(usage_requirements_only)
     {
     dagChecker.SetTransitivePropertiesOnly();
     }
@@ -6042,7 +6041,7 @@ cmTarget::LinkInterface const* cmTarget::GetLinkInterface(
   // Imported targets have their own link interface.
   if(this->IsImported())
     {
-    return this->GetImportLinkInterface(config, head, true);
+    return this->GetImportLinkInterface(config, head, false);
     }
 
   // Link interfaces are not supported for executables that do not
@@ -6063,7 +6062,7 @@ cmTarget::LinkInterface const* cmTarget::GetLinkInterface(
     // Compute the link interface for this configuration.
     cmTargetInternals::OptionalLinkInterface iface;
     iface.ExplicitLibraries =
-      this->ComputeLinkInterfaceLibraries(config, iface, head, true,
+      this->ComputeLinkInterfaceLibraries(config, iface, head, false,
                                           iface.Exists);
     if (iface.Exists)
       {
@@ -6088,12 +6087,12 @@ cmTarget::LinkInterface const* cmTarget::GetLinkInterface(
 cmTarget::LinkInterface const*
 cmTarget::GetLinkInterfaceLibraries(const std::string& config,
                                     cmTarget const* head,
-                                    bool linking) const
+                                    bool usage_requirements_only) const
 {
   // Imported targets have their own link interface.
   if(this->IsImported())
     {
-    return this->GetImportLinkInterface(config, head, linking);
+    return this->GetImportLinkInterface(config, head, usage_requirements_only);
     }
 
   // Link interfaces are not supported for executables that do not
@@ -6107,19 +6106,19 @@ cmTarget::GetLinkInterfaceLibraries(const std::string& config,
   // Lookup any existing link interface for this configuration.
   TargetConfigPair key(head, cmSystemTools::UpperCase(config));
   cmTargetInternals::LinkInterfaceMapType& lim =
-    linking? this->Internal->LinkInterfaceMap :
-             this->Internal->LinkInterfaceTransitiveOnlyMap;
+    (usage_requirements_only ?
+     this->Internal->LinkInterfaceUsageRequirementsOnlyMap :
+     this->Internal->LinkInterfaceMap);
 
   cmTargetInternals::LinkInterfaceMapType::iterator i = lim.find(key);
   if(i == lim.end())
     {
     // Compute the link interface for this configuration.
     cmTargetInternals::OptionalLinkInterface iface;
-    iface.ExplicitLibraries = this->ComputeLinkInterfaceLibraries(config,
-                                                                iface,
-                                                                head,
-                                                                linking,
-                                                                iface.Exists);
+    iface.ExplicitLibraries =
+      this->ComputeLinkInterfaceLibraries(config, iface, head,
+                                          usage_requirements_only,
+                                          iface.Exists);
 
     // Store the information for this configuration.
     cmTargetInternals::LinkInterfaceMapType::value_type entry(key, iface);
@@ -6133,7 +6132,7 @@ cmTarget::GetLinkInterfaceLibraries(const std::string& config,
 cmTarget::LinkInterface const*
 cmTarget::GetImportLinkInterface(const std::string& config,
                                  cmTarget const* headTarget,
-                                 bool linking) const
+                                 bool usage_requirements_only) const
 {
   cmTarget::ImportInfo const* info = this->GetImportInfo(config);
   if(!info)
@@ -6143,8 +6142,9 @@ cmTarget::GetImportLinkInterface(const std::string& config,
 
   TargetConfigPair key(headTarget, cmSystemTools::UpperCase(config));
   cmTargetInternals::ImportLinkInterfaceMapType& lim =
-    linking? this->Internal->ImportLinkInterfaceMap :
-             this->Internal->ImportLinkInterfaceTransitiveOnlyMap;
+    (usage_requirements_only ?
+     this->Internal->ImportLinkInterfaceUsageRequirementsOnlyMap :
+     this->Internal->ImportLinkInterfaceMap);
 
   cmTargetInternals::ImportLinkInterfaceMapType::iterator i = lim.find(key);
   if(i == lim.end())
@@ -6153,7 +6153,8 @@ cmTarget::GetImportLinkInterface(const std::string& config,
     iface.Multiplicity = info->Multiplicity;
     cmSystemTools::ExpandListArgument(info->Languages, iface.Languages);
     this->ExpandLinkItems(info->LibrariesProp, info->Libraries, config,
-                          headTarget, linking, iface.Libraries);
+                          headTarget, usage_requirements_only,
+                          iface.Libraries);
     {
     std::vector<std::string> deps;
     cmSystemTools::ExpandListArgument(info->SharedDeps, deps);
@@ -6178,7 +6179,7 @@ void processILibs(const std::string& config,
     {
     tgts.push_back(item.Target);
     if(cmTarget::LinkInterface const* iface =
-       item.Target->GetLinkInterfaceLibraries(config, headTarget, true))
+       item.Target->GetLinkInterfaceLibraries(config, headTarget, false))
       {
       for(std::vector<cmLinkItem>::const_iterator
             it = iface->Libraries.begin();
@@ -6218,8 +6219,18 @@ void cmTarget::GetTransitivePropertyTargets(const std::string& config,
                                       cmTarget const* headTarget,
                                       std::vector<cmTarget const*> &tgts) const
 {
+  // The $<LINK_ONLY> expression may be in a link interface to specify private
+  // link dependencies that are otherwise excluded from usage requirements.
+  // Currently $<LINK_ONLY> is internal to CMake and only ever added by
+  // target_link_libraries for PRIVATE dependencies of STATIC libraries in
+  // INTERFACE_LINK_LIBRARIES which is used under CMP0022 NEW behavior.
+  bool usage_requirements_only =
+    this->GetType() == STATIC_LIBRARY &&
+    this->GetPolicyStatusCMP0022() != cmPolicies::WARN &&
+    this->GetPolicyStatusCMP0022() != cmPolicies::OLD;
   if(cmTarget::LinkInterface const* iface =
-     this->GetLinkInterfaceLibraries(config, headTarget, false))
+     this->GetLinkInterfaceLibraries(config, headTarget,
+                                     usage_requirements_only))
     {
     for(std::vector<cmLinkItem>::const_iterator it = iface->Libraries.begin();
         it != iface->Libraries.end(); ++it)
@@ -6236,7 +6247,8 @@ void cmTarget::GetTransitivePropertyTargets(const std::string& config,
 const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
                                            LinkInterface& iface,
                                            cmTarget const* headTarget,
-                                           bool linking, bool &exists) const
+                                           bool usage_requirements_only,
+                                           bool &exists) const
 {
   // Construct the property name suffix for this configuration.
   std::string suffix = "_";
@@ -6321,7 +6333,8 @@ const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
     {
     // The interface libraries have been explicitly set.
     this->ExpandLinkItems(linkIfaceProp, explicitLibraries, config,
-                          headTarget, linking, iface.Libraries);
+                          headTarget, usage_requirements_only,
+                          iface.Libraries);
     }
   else if (this->PolicyStatusCMP0022 == cmPolicies::WARN
         || this->PolicyStatusCMP0022 == cmPolicies::OLD)
@@ -6335,7 +6348,7 @@ const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
         this->GetLinkImplementationLibrariesInternal(config, headTarget);
     iface.Libraries = impl->Libraries;
     if(this->PolicyStatusCMP0022 == cmPolicies::WARN &&
-       !this->Internal->PolicyWarnedCMP0022 && linking)
+       !this->Internal->PolicyWarnedCMP0022 && !usage_requirements_only)
       {
       // Compare the link implementation fallback link interface to the
       // preferred new link interface property and warn if different.
@@ -6344,7 +6357,8 @@ const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
       if(const char* newExplicitLibraries = this->GetProperty(newProp))
         {
         this->ExpandLinkItems(newProp, newExplicitLibraries, config,
-                              headTarget, linking, ifaceLibs);
+                              headTarget, usage_requirements_only,
+                              ifaceLibs);
         }
       if (ifaceLibs != impl->Libraries)
         {

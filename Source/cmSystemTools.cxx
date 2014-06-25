@@ -1741,10 +1741,11 @@ bool extract_tar(const char* outFileName, bool verbose,
                              archive_error_string(ext));
         cmSystemTools::Error("Current file: ",
 #if cmsys_STL_HAS_WSTRING
-          cmsys::Encoding::ToNarrow(archive_entry_pathname_w(entry)).c_str());
+          cmsys::Encoding::ToNarrow(archive_entry_pathname_w(entry)).c_str()
 #else
-          archive_entry_pathname(entry));
+          archive_entry_pathname(entry)
 #endif
+          );
         break;
         }
       }

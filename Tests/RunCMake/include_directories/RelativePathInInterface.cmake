@@ -1,5 +1,5 @@
 
-enable_language(CXX)
+project(RelativePathInInterface)
 
 add_library(testTarget "${CMAKE_CURRENT_SOURCE_DIR}/empty.cpp")
 set_property(TARGET testTarget PROPERTY INTERFACE_INCLUDE_DIRECTORIES "foo")

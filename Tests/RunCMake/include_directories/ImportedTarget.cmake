@@ -1,5 +1,5 @@
 
-enable_language(CXX)
+project(ImportedTarget)
 
 add_library(testTarget "${CMAKE_CURRENT_SOURCE_DIR}/empty.cpp")
 

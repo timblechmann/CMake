@@ -6510,12 +6510,9 @@ void cmTarget::ComputeLinkImplementation(const std::string& config,
     cmGeneratorExpression ge(&le->Backtrace);
     cmsys::auto_ptr<cmCompiledGeneratorExpression> const cge =
       ge.Parse(le->Value);
-    cmSystemTools::ExpandListArgument(cge->Evaluate(this->Makefile,
-                                        config,
-                                        false,
-                                        head,
-                                        &dagChecker),
-                                      llibs);
+    std::string const evaluated =
+      cge->Evaluate(this->Makefile, config, false, head, &dagChecker);
+    cmSystemTools::ExpandListArgument(evaluated, llibs);
 
     for(std::vector<std::string>::const_iterator li = llibs.begin();
         li != llibs.end(); ++li)
@@ -6563,7 +6560,8 @@ void cmTarget::ComputeLinkImplementation(const std::string& config,
 
       // The entry is meant for this configuration.
       impl.Libraries.push_back(
-        cmLinkImplItem(name, this->FindTargetToLink(name), le->Backtrace));
+        cmLinkImplItem(name, this->FindTargetToLink(name),
+                       le->Backtrace, evaluated != le->Value));
       }
 
     std::set<std::string> const& seenProps = cge->GetSeenTargetProperties();

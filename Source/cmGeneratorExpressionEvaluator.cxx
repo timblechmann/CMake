@@ -1098,8 +1098,7 @@ static const struct TargetPropertyNode : public cmGeneratorExpressionNode
 
       std::vector<cmTarget const*> tgts;
       target->GetTransitivePropertyTargets(context->Config,
-                                           headTarget, tgts,
-                                           &context->Backtrace);
+                                                 headTarget, tgts);
       if (!tgts.empty())
         {
         linkedTargetsContent =

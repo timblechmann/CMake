@@ -281,12 +281,10 @@ public:
                                         cmTarget const* headTarget) const;
   LinkInterface const* GetLinkInterfaceLibraries(const std::string& config,
                                         cmTarget const* headTarget,
-                                        bool usage_requirements_only,
-                                        cmListFileBacktrace *backtrace) const;
+                                        bool usage_requirements_only) const;
   void GetTransitivePropertyTargets(const std::string& config,
                                     cmTarget const* headTarget,
-                                    std::vector<cmTarget const*> &libs,
-                                    cmListFileBacktrace *backtrace = 0) const;
+                                    std::vector<cmTarget const*> &libs) const;
   std::vector<cmTarget const*> const&
     GetLinkImplementationClosure(const std::string& config) const;
 
@@ -760,15 +758,13 @@ private:
 
   LinkInterface const*
     GetImportLinkInterface(const std::string& config, cmTarget const* head,
-                           bool usage_requirements_only,
-                           cmListFileBacktrace *backtrace) const;
+                           bool usage_requirements_only) const;
 
   const char* ComputeLinkInterfaceLibraries(const std::string& config,
-                                        LinkInterface& iface,
-                                        cmTarget const* head,
-                                        bool usage_requirements_only,
-                                        bool &exists,
-                                        cmListFileBacktrace* backtrace) const;
+                                            LinkInterface& iface,
+                                            cmTarget const* head,
+                                            bool usage_requirements_only,
+                                            bool &exists) const;
 
   LinkImplementation const*
     GetLinkImplementationLibrariesInternal(const std::string& config,
@@ -784,8 +780,7 @@ private:
   void ExpandLinkItems(std::string const& prop, std::string const& value,
                        std::string const& config, cmTarget const* headTarget,
                        bool usage_requirements_only,
-                       std::vector<cmLinkItem>& items,
-                       cmListFileBacktrace *backtrace) const;
+                       std::vector<cmLinkItem>& items) const;
   void LookupLinkItems(std::vector<std::string> const& names,
                        std::vector<cmLinkItem>& items) const;
 

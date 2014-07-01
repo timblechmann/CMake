@@ -3730,10 +3730,9 @@ void cmTarget::ExpandLinkItems(std::string const& prop,
                                std::string const& config,
                                cmTarget const* headTarget,
                                bool usage_requirements_only,
-                               std::vector<cmLinkItem>& items,
-                               cmListFileBacktrace *backtrace) const
+                               std::vector<cmLinkItem>& items) const
 {
-  cmGeneratorExpression ge(backtrace);
+  cmGeneratorExpression ge;
   cmGeneratorExpressionDAGChecker dagChecker(this->GetName(), prop, 0, 0);
   if(usage_requirements_only)
     {
@@ -6079,7 +6078,7 @@ cmTarget::LinkInterface const* cmTarget::GetLinkInterface(
   // Imported targets have their own link interface.
   if(this->IsImported())
     {
-    return this->GetImportLinkInterface(config, head, false, 0);
+    return this->GetImportLinkInterface(config, head, false);
     }
 
   // Link interfaces are not supported for executables that do not
@@ -6101,7 +6100,7 @@ cmTarget::LinkInterface const* cmTarget::GetLinkInterface(
     cmTargetInternals::OptionalLinkInterface iface;
     iface.ExplicitLibraries =
       this->ComputeLinkInterfaceLibraries(config, iface, head, false,
-                                          iface.Exists, 0);
+                                          iface.Exists);
     if (iface.Exists)
       {
       this->Internal->ComputeLinkInterface(this, config, iface,
@@ -6125,14 +6124,12 @@ cmTarget::LinkInterface const* cmTarget::GetLinkInterface(
 cmTarget::LinkInterface const*
 cmTarget::GetLinkInterfaceLibraries(const std::string& config,
                                     cmTarget const* head,
-                                    bool usage_requirements_only,
-                                    cmListFileBacktrace *backtrace) const
+                                    bool usage_requirements_only) const
 {
   // Imported targets have their own link interface.
   if(this->IsImported())
     {
-    return this->GetImportLinkInterface(config, head,
-                                        usage_requirements_only, backtrace);
+    return this->GetImportLinkInterface(config, head, usage_requirements_only);
     }
 
   // Link interfaces are not supported for executables that do not
@@ -6158,7 +6155,7 @@ cmTarget::GetLinkInterfaceLibraries(const std::string& config,
     iface.ExplicitLibraries =
       this->ComputeLinkInterfaceLibraries(config, iface, head,
                                           usage_requirements_only,
-                                          iface.Exists, backtrace);
+                                          iface.Exists);
 
     // Store the information for this configuration.
     cmTargetInternals::LinkInterfaceMapType::value_type entry(key, iface);
@@ -6172,8 +6169,7 @@ cmTarget::GetLinkInterfaceLibraries(const std::string& config,
 cmTarget::LinkInterface const*
 cmTarget::GetImportLinkInterface(const std::string& config,
                                  cmTarget const* headTarget,
-                                 bool usage_requirements_only,
-                                 cmListFileBacktrace *backtrace) const
+                                 bool usage_requirements_only) const
 {
   cmTarget::ImportInfo const* info = this->GetImportInfo(config);
   if(!info)
@@ -6195,7 +6191,7 @@ cmTarget::GetImportLinkInterface(const std::string& config,
     cmSystemTools::ExpandListArgument(info->Languages, iface.Languages);
     this->ExpandLinkItems(info->LibrariesProp, info->Libraries, config,
                           headTarget, usage_requirements_only,
-                          iface.Libraries, backtrace);
+                          iface.Libraries);
     {
     std::vector<std::string> deps;
     cmSystemTools::ExpandListArgument(info->SharedDeps, deps);
@@ -6220,7 +6216,7 @@ void processILibs(const std::string& config,
     {
     tgts.push_back(item.Target);
     if(cmTarget::LinkInterface const* iface =
-       item.Target->GetLinkInterfaceLibraries(config, headTarget, false, 0))
+       item.Target->GetLinkInterfaceLibraries(config, headTarget, false))
       {
       for(std::vector<cmLinkItem>::const_iterator
             it = iface->Libraries.begin();
@@ -6258,8 +6254,7 @@ cmTarget::GetLinkImplementationClosure(const std::string& config) const
 //----------------------------------------------------------------------------
 void cmTarget::GetTransitivePropertyTargets(const std::string& config,
                                       cmTarget const* headTarget,
-                                      std::vector<cmTarget const*> &tgts,
-                                      cmListFileBacktrace *backtrace) const
+                                      std::vector<cmTarget const*> &tgts) const
 {
   // The $<LINK_ONLY> expression may be in a link interface to specify private
   // link dependencies that are otherwise excluded from usage requirements.
@@ -6272,7 +6267,7 @@ void cmTarget::GetTransitivePropertyTargets(const std::string& config,
     this->GetPolicyStatusCMP0022() != cmPolicies::OLD;
   if(cmTarget::LinkInterface const* iface =
      this->GetLinkInterfaceLibraries(config, headTarget,
-                                     usage_requirements_only, backtrace))
+                                     usage_requirements_only))
     {
     for(std::vector<cmLinkItem>::const_iterator it = iface->Libraries.begin();
         it != iface->Libraries.end(); ++it)
@@ -6287,11 +6282,10 @@ void cmTarget::GetTransitivePropertyTargets(const std::string& config,
 
 //----------------------------------------------------------------------------
 const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
-                                        LinkInterface& iface,
-                                        cmTarget const* headTarget,
-                                        bool usage_requirements_only,
-                                        bool &exists,
-                                        cmListFileBacktrace *backtrace) const
+                                           LinkInterface& iface,
+                                           cmTarget const* headTarget,
+                                           bool usage_requirements_only,
+                                           bool &exists) const
 {
   // Construct the property name suffix for this configuration.
   std::string suffix = "_";
@@ -6377,7 +6371,7 @@ const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
     // The interface libraries have been explicitly set.
     this->ExpandLinkItems(linkIfaceProp, explicitLibraries, config,
                           headTarget, usage_requirements_only,
-                          iface.Libraries, backtrace);
+                          iface.Libraries);
     }
   else if (this->PolicyStatusCMP0022 == cmPolicies::WARN
         || this->PolicyStatusCMP0022 == cmPolicies::OLD)
@@ -6401,7 +6395,7 @@ const char* cmTarget::ComputeLinkInterfaceLibraries(const std::string& config,
         {
         this->ExpandLinkItems(newProp, newExplicitLibraries, config,
                               headTarget, usage_requirements_only,
-                              ifaceLibs, backtrace);
+                              ifaceLibs);
         }
       if (ifaceLibs != impl->Libraries)
         {

@@ -1,4 +1,4 @@
-CMake Error at LinkImplementationCycle5.cmake:10 \(target_link_libraries\):
+CMake Error:
   Error evaluating generator expression:
 
     \$<TARGET_PROPERTY:INTERFACE_INCLUDE_DIRECTORIES>
@@ -6,5 +6,3 @@ CMake Error at LinkImplementationCycle5.cmake:10 \(target_link_libraries\):
   \$<TARGET_PROPERTY:...> expression in link libraries evaluation depends on
   target property which is transitive over the link libraries, creating a
   recursion.
-Call Stack \(most recent call first\):
-  CMakeLists.txt:8 \(include\)

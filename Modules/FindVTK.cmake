@@ -56,6 +56,8 @@ if(NOT VTK_FOUND)
     set(_VTK_QUIET QUIET)
   endif()
   find_package(VTK ${_VTK_REQUIRED} ${_VTK_QUIET} NO_MODULE)
+  unset(_VTK_REQUIRED)
+  unset(_VTK_QUIET)
 endif()
 
 if(VTK_FOUND)

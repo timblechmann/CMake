@@ -11,5 +11,11 @@ add_custom_command(
                                    ${CMAKE_CURRENT_BINARY_DIR}/a1.c
   )
 
-add_library(A OBJECT a1.c a2.c)
+file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/a.cmake)
+add_custom_command(
+  OUTPUT a.cmake
+  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/a.cmake
+  )
+
+add_library(A OBJECT a1.c a2.c a.cmake)
 target_include_directories(A PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
